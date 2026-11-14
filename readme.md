@@ -2,6 +2,9 @@
 
 Aplikasi Android untuk siswa SMP kelas VIII mempelajari **Konsep Dasar Peluang**, dengan simulasi 3D koin, dadu, kartu remi, roda putar, kantong bola, kotak undian kupon, dan tutup botol di atas lapangan rumput.
 
+**Coba langsung di browser (HP/laptop):** https://rahmaelinayasmin.github.io/aplication-tugas-uas-2225250016/  
+Versi web ini sama dengan isi APK; data tersimpan di browser masing-masing. Untuk penelitian di kelas tetap pakai APK.
+
 Dikembangkan dalam penelitian pengembangan **ADDIE** untuk meningkatkan **Mathematical Literacy** siswa dengan mengelola **beban kognitif** (Cognitive Load Theory) berdasarkan wawancara siswa yang telah mempelajari materi ini.
 
 ## Teknologi: JavaScript + Python
