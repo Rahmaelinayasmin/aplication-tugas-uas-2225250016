@@ -89,6 +89,16 @@ export function Tree2C() {
 export function Grid2D() {
   const [rows, setRows] = useState(1);
   const [pick, setPick] = useState<string | null>(null);
+  // Tahap "buat sendiri" (F03): setelah tabel penuh, siswa menandai sendiri pasangan berjumlah 7
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [checked, setChecked] = useState<null | boolean>(null);
+  const challenge = rows === 6;
+  const target = (k: string) => k.split(',').reduce((a, b) => a + Number(b), 0) === 7;
+  const tap = (k: string) => {
+    if (challenge) { setChecked(null); setSel(s => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n; }); }
+    else setPick(k);
+  };
+  const check = () => setChecked(sel.size === 6 && [...sel].every(target));
   return (
     <div className="widget">
       <div className="grid-wrap">
@@ -100,7 +110,7 @@ export function Grid2D() {
                 <th className="d1">{a}</th>
                 {[1, 2, 3, 4, 5, 6].map(b => {
                   const k = `${a},${b}`, shown = a <= rows;
-                  return <td key={b} className={(shown ? 'shown' : 'empty') + (pick === k ? ' last' : '')} onClick={() => shown && setPick(k)}>{shown ? k : ''}</td>;
+                  return <td key={b} className={(sel.has(k) ? 'in' : shown ? 'shown' : 'empty') + (!challenge && pick === k ? ' last' : '')} onClick={() => shown && tap(k)}>{shown ? k : ''}</td>;
                 })}
               </tr>
             ))}
@@ -108,10 +118,18 @@ export function Grid2D() {
         </table>
       </div>
       <p className="note">Baris = dadu ungu, kolom = dadu merah muda. Terisi: <span className="ns-t">{rows * 6} titik sampel</span>{rows === 6 && ' → n(S) = 6 × 6 = 36'}</p>
-      {pick && <p className="note">({pick}) adalah <b>satu titik sampel</b>. Ruang sampel adalah kumpulan semua kotak.</p>}
+      {!challenge && pick && <p className="note">({pick}) adalah <b>satu titik sampel</b>. Ruang sampel adalah kumpulan semua kotak.</p>}
+      {challenge && (
+        <div className="known">
+          <p><b>Tantangan:</b> ketuk semua pasangan yang <b>jumlahnya 7</b>. Terpilih: <span className="na-t">{sel.size}</span></p>
+          {checked === true && <p className="ok-text">Pas! n(A) = 6, jadi P(jumlah 7) = 6/36 = 1/6.</p>}
+          {checked === false && <p className="soft-warn">Belum pas. Cek lagi: dadu ungu + dadu merah muda harus = 7. Ada 6 pasangan.</p>}
+          <button className="btn" disabled={sel.size === 0} onClick={check}>Periksa</button>
+        </div>
+      )}
       <div className="row">
         <button className="btn" disabled={rows >= 6} onClick={() => setRows(r => r + 1)}>Isi baris berikutnya</button>
-        <button className="btn ghost small" onClick={() => { setRows(1); setPick(null); }}>Ulangi</button>
+        <button className="btn ghost small" onClick={() => { setRows(1); setPick(null); setSel(new Set()); setChecked(null); }}>Ulangi</button>
       </div>
     </div>
   );

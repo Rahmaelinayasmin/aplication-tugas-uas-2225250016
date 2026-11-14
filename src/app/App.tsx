@@ -9,8 +9,11 @@ import { GlossaryScreen, ProgressScreen, SettingsScreen, TeacherScreen } from '.
 import { LabScreen } from '../ui/screens/Lab';
 
 function Router() {
-  const { route, back, toastMsg } = useApp();
+  const { route, back, toastMsg, settings } = useApp();
   const backRef = useRef(back); backRef.current = back;
+
+  // Ukuran teks (aksesibilitas): diskalakan lewat variabel CSS pada layar & panel Lab
+  useEffect(() => { document.documentElement.style.setProperty('--text-zoom', String(settings.textScale)); }, [settings.textScale]);
 
   // Tombol Back Android: kembali satu layar; di layar paling awal → keluar aplikasi
   useEffect(() => {

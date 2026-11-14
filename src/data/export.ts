@@ -29,9 +29,9 @@ export async function buildExport(kind: ExportKind): Promise<{ name: string; dat
   const students = new Map((await db.students.toArray()).map(s => [s.code, s]));
   const cls = (code: string) => students.get(code)?.classCode ?? '';
   if (kind === 'ringkasan') {
-    const rows: (string | number | boolean)[][] = [['student_code', 'class_code', 'mode', 'item_id', 'indicator', 'score', 'max', 'duration_ms', 'hints_used', 'needs_review', 'app_version', 'timestamp']];
+    const rows: (string | number | boolean)[][] = [['student_code', 'class_code', 'mode', 'item_id', 'indicator', 'score', 'max', 'duration_ms', 'hints_used', 'needs_review', 'explanation', 'app_version', 'timestamp']];
     for (const a of await db.attempts.orderBy('ts').toArray())
-      rows.push([a.studentCode, cls(a.studentCode), a.mode, a.itemId, a.indicator, a.total, a.max, a.durationMs, a.hintsUsed, a.steps.some(s => s.needsReview && !s.reviewed), a.appVersion, iso(a.ts)]);
+      rows.push([a.studentCode, cls(a.studentCode), a.mode, a.itemId, a.indicator, a.total, a.max, a.durationMs, a.hintsUsed, a.steps.some(s => s.needsReview && !s.reviewed), a.explanation ?? '', a.appVersion, iso(a.ts)]);
     return { name: `ringkasan-skor-${stamp}.csv`, data: csv(rows), mime: 'text/csv' };
   }
   if (kind === 'tahap') {

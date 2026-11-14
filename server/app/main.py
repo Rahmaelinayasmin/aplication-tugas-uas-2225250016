@@ -99,7 +99,7 @@ def sync(body: SyncIn, session: SessionDep, _dev: Annotated[Device, Depends(devi
         existing = session.get(model, client_id)
         if existing is not None:
             if table == "attempts":  # skor alasan bisa diubah guru di HP → perbarui
-                existing.total, existing.steps_json = fields["total"], fields["steps_json"]
+                existing.total, existing.steps_json, existing.explanation = fields["total"], fields["steps_json"], fields["explanation"]
                 session.add(existing)
             dup[table] += 1
             return
@@ -109,7 +109,7 @@ def sync(body: SyncIn, session: SessionDep, _dev: Annotated[Device, Depends(devi
     for a in body.attempts:
         add("attempts", AttemptRow, cid("attempts", a.id), student_code=a.student_code, mode=a.mode, item_id=a.item_id,
             indicator=a.indicator, total=round(a.total), max=round(a.max), duration_ms=a.duration_ms, hints_used=a.hints_used,
-            steps_json=json.dumps([s.model_dump(by_alias=True) for s in a.steps]), app_version=a.app_version, ts=a.ts)
+            steps_json=json.dumps([s.model_dump(by_alias=True) for s in a.steps]), explanation=a.explanation or "", app_version=a.app_version, ts=a.ts)
     for h in body.hint_events:
         add("hintEvents", HintRow, cid("hints", h.id), student_code=h.student_code, item_id=h.item_id, step_no=h.step_no,
             level=h.level, trigger=h.trigger, ts=h.ts)

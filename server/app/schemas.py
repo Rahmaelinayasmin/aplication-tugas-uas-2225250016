@@ -50,6 +50,7 @@ class AttemptIn(Camel):
     duration_ms: int
     hints_used: int
     steps: list[StepIn]
+    explanation: str | None = None  # F07 "Jelaskan ke teman"
     app_version: str = ""
     ts: int
 

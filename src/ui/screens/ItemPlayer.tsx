@@ -14,7 +14,7 @@ import { Widget } from '../components/widgets';
 interface StepRec { wrong: number; hintLevel: number; correct: boolean; skipped: boolean }
 type Feedback = { kind: 'ok' | 'bad' | 'warn'; text: string } | null;
 
-export interface ItemOutcome { total: number; max: number; solved: number; hintsUsed: number }
+export interface ItemOutcome { total: number; max: number; solved: number; hintsUsed: number; attemptId: number }
 
 /* Pemutar soal: satu tahap per langkah (D4), Pola 3 Langkah (F08), petunjuk bertahap (F05), cek kewajaran (F06).
    Mode tes: tanpa petunjuk, tanpa umpan balik benar/salah, tanpa lab. */
@@ -52,8 +52,8 @@ export function ItemPlayer({ item, mode, onDone, position }: { item: Item; mode:
     });
     const total = steps.reduce((a, s) => a + s.score, 0), max = steps.reduce((a, s) => a + s.max, 0);
     const hintsUsed = finalRecs.reduce((a, r) => a + r.hintLevel, 0);
-    await saveAttempt({ studentCode: student.code, mode, itemId: item.id, indicator: item.indicator, total, max, durationMs: Date.now() - started.current, hintsUsed, steps, appVersion: APP_VERSION, ts: Date.now() });
-    onDone({ total, max, solved: steps.filter(s => s.correct).length, hintsUsed });
+    const attemptId = await saveAttempt({ studentCode: student.code, mode, itemId: item.id, indicator: item.indicator, total, max, durationMs: Date.now() - started.current, hintsUsed, steps, appVersion: APP_VERSION, ts: Date.now() });
+    onDone({ total, max, solved: steps.filter(s => s.correct).length, hintsUsed, attemptId: attemptId as number });
   }
 
   function advance(rec: StepRec, ans: Answer | undefined) {

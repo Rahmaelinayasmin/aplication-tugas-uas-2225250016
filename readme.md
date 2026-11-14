@@ -22,8 +22,8 @@ File ada di folder `release/`:
 
 | File | Kegunaan |
 |---|---|
-| `MaWiYas-1.1.0.apk` | **Pakai yang ini**: versi rilis yang ditandatangani |
-| `MaWiYas-1.1.0-debug.apk` | Versi debug untuk pengembangan |
+| `MaWiYas-1.2.0.apk` | **Pakai yang ini**: versi rilis yang ditandatangani |
+| `MaWiYas-1.2.0-debug.apk` | Versi debug untuk pengembangan |
 
 1. Kirim APK ke HP lewat kabel, WhatsApp, atau Google Drive.
 2. Buka file APK di HP. Bila diminta, izinkan **"Instal dari sumber tidak dikenal"**.
@@ -38,8 +38,9 @@ Butuh Android 6.0 atau lebih baru. Berjalan **offline**, tanpa iklan.
 | **Diagnostik pecahan** | 6 soal singkat. Bila skor < 70%, siswa diarahkan ke **Pecahan Kilat**. |
 | **Belajar Bertahap** | 6 unit, satu langkah per layar, dengan widget interaktif (kartu remi, diagram pohon, tabel 2 dadu, pemilah soal cerita). |
 | **Lab Lapangan 3D** | Koin (4 jenis), dadu (4 gaya), kartu remi, roda putar, kantong bola, **kotak kupon A/B**, **tutup botol**. Lempar 1× dengan animasi, atau 10×/100×/1000× cepat. Rumus, grafik empirik vs teoretis, dan ruang sampel di layar yang sama. |
-| **Latihan Literasi** | 13 soal untuk 4 indikator ML. Petunjuk bertahap otomatis setelah 2× salah dan makin jarang saat siswa makin mahir. |
+| **Latihan Literasi** | 13 soal untuk 4 indikator ML. Petunjuk bertahap otomatis setelah 2× salah dan makin jarang saat siswa makin mahir. Setelah soal Bernalar/Menafsirkan, siswa diajak **menjelaskan ke teman** (disimpan & diekspor). |
 | **Mode Tes** | Pretest/posttest 5 soal Tabel 2 (maks. 30), dibuka dengan **PIN guru**. |
+| **Pengaturan** | Mode Fokus, Kurangi Gerakan, kualitas grafis, **suara**, **getar**, **ukuran teks 100/115/130%**, ganti kode siswa. |
 | **Kuesioner** | 10 butir beban kognitif (adaptasi, skala 0–10). |
 | **Guru / Peneliti** | Ringkasan skor, N-gain, cek jawaban alasan, ekspor CSV/JSON, **sinkron ke server Python**, ganti PIN, hapus data. |
 

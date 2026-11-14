@@ -246,12 +246,23 @@ export function SettingsScreen() {
           <select id="opt-q" value={settings.quality} onChange={e => updateSettings({ quality: e.target.value as 'auto' | QualityTier })}>
             <option value="auto">Otomatis</option><option value="hemat">Hemat</option><option value="sedang">Sedang</option><option value="tinggi">Tinggi</option>
           </select></label>
+        <label className="sw-row" htmlFor="opt-sound"><span>Suara<small>Bunyi lembut saat koin, dadu, atau kartu keluar</small></span>
+          <input id="opt-sound" type="checkbox" checked={settings.sound} onChange={e => updateSettings({ sound: e.target.checked })} /></label>
+        <label className="sw-row" htmlFor="opt-haptic"><span>Getar<small>Getar singkat saat hasil keluar</small></span>
+          <input id="opt-haptic" type="checkbox" checked={settings.haptic} onChange={e => updateSettings({ haptic: e.target.checked })} /></label>
+        <div className="sw-row"><span>Ukuran teks<small>Perbesar bila tulisan terasa kecil</small></span>
+          <div className="row" role="radiogroup" aria-label="Ukuran teks">
+            {([1, 1.15, 1.3] as const).map(z => (
+              <button key={z} className="chip opt" role="radio" aria-pressed={settings.textScale === z} aria-checked={settings.textScale === z} onClick={() => updateSettings({ textScale: z })}>{Math.round(z * 100)}%</button>
+            ))}
+          </div>
+        </div>
       </section>
       <section className="card form">
         <p className="note">Masuk sebagai <b>{student?.code}</b>. HP ini bisa dipakai bergantian dengan kode siswa yang berbeda.</p>
         <button className="btn" onClick={() => { setStudent(null); reset({ name: 'login' }); }}>Ganti kode siswa</button>
       </section>
-      <p className="note center">MaWiYas 1.1.0 · tanpa iklan · data tersimpan di HP ini</p>
+      <p className="note center">MaWiYas 1.2.0 · tanpa iklan · data tersimpan di HP ini</p>
     </main>
   );
 }

@@ -40,6 +40,8 @@ export interface Attempt {
   durationMs: number;
   hintsUsed: number;
   steps: AttemptStep[];
+  /** F07: penjelasan siswa "untuk teman" setelah soal bernalar/menafsirkan */
+  explanation?: string;
   appVersion: string;
   ts: number;
 }
@@ -67,4 +69,4 @@ db.version(1).stores({
   settings: 'k'
 });
 
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.2.0';

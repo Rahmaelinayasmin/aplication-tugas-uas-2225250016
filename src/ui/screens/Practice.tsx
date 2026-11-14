@@ -4,7 +4,7 @@ import { PRACTICE_ITEMS } from '../../domain/content/practiceItems';
 import { TEST_ITEMS, TEST_MAX } from '../../domain/content/testItems';
 import { SURVEY } from '../../domain/content/lessons';
 import { INDICATORS } from '../../domain/learning/types';
-import type { Attempt } from '../../data/db';
+import { db, type Attempt } from '../../data/db';
 import { attemptsOf, getSetting, saveSurvey, testDone } from '../../data/repo';
 import { TopBar } from '../components/common';
 import { ItemPlayer, type ItemOutcome } from './ItemPlayer';
@@ -58,12 +58,31 @@ export function ItemScreen({ id }: { id: string }) {
           <h1>{out.solved === item.steps.length ? (out.hintsUsed === 0 ? 'Mandiri penuh!' : 'Selesai!') : 'Sudah dicoba!'}</h1>
           <p>{out.solved} dari {item.steps.length} langkah terselesaikan{out.hintsUsed ? `, memakai ${out.hintsUsed} petunjuk` : ' tanpa petunjuk'}.</p>
           <p className="note">Petunjuk akan makin jarang muncul kalau kamu makin mahir.</p>
+          {(item.indicator === 'reasoning' || item.indicator === 'interpreting') && <ExplainCard attemptId={out.attemptId} />}
           {next && <button className="btn primary" onClick={() => replace({ name: 'item', id: next.id })}>Soal berikutnya: {next.title}</button>}
           <button className="btn" onClick={() => setOut(null)}>Ulangi soal ini</button>
           <button className="btn ghost" onClick={() => back()}>Kembali ke daftar</button>
         </section>
       ) : <ItemPlayer item={item} mode="latihan" onDone={setOut} />}
     </main>
+  );
+}
+
+/* F07 "Jelaskan ke teman" (GL04): menjelaskan memperkuat pemahaman. Opsional, tidak dinilai. */
+function ExplainCard({ attemptId }: { attemptId: number }) {
+  const { toast } = useApp();
+  const [text, setText] = useState('');
+  const [saved, setSaved] = useState(false);
+  if (saved) return <p className="fb ok">Penjelasanmu tersimpan. Menjelaskan ke teman bikin pemahamanmu makin nempel!</p>;
+  return (
+    <div className="explain">
+      <label htmlFor="explain" className="step-prompt">Jelaskan ke teman</label>
+      <p className="note">Bayangkan temanmu belum paham soal ini. Tulis 1–2 kalimat: kenapa jawabanmu benar?</p>
+      <textarea id="explain" className="reason" rows={3} value={text} onChange={e => setText(e.target.value)} placeholder="Karena peluangnya …" />
+      <button className="btn" disabled={text.trim().length < 5} onClick={async () => {
+        await db.attempts.update(attemptId, { explanation: text.trim() }); setSaved(true); toast('Penjelasan tersimpan');
+      }}>Simpan penjelasan</button>
+    </div>
   );
 }
 

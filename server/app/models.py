@@ -34,6 +34,7 @@ class AttemptRow(SQLModel, table=True):
     duration_ms: int
     hints_used: int
     steps_json: str
+    explanation: str = ""
     app_version: str
     ts: int
 

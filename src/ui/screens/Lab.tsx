@@ -6,6 +6,7 @@ import { gcd } from '../../domain/probability/fraction';
 import { logSimulation } from '../../data/repo';
 import { Frac, ProbabilityMeter, TopBar } from '../components/common';
 import { FrequencyChart } from '../components/FrequencyChart';
+import { playResult, vibrate } from '../sound';
 
 const MODES: { id: LabMode; label: string; dot: string; act: string }[] = [
   { id: 'coin', label: 'Koin', dot: '#E9C46A', act: 'Lempar koin' },
@@ -94,7 +95,8 @@ export function LabScreen({ preset }: { preset?: { mode: LabMode; count?: 1 | 2 
     try {
       const { key } = await engine.current.act();
       setOutcomes(o => (o.length >= MAX_OUT ? o : [...o, key]));
-      try { navigator.vibrate?.(12); } catch { /* opsional */ }
+      if (settings.sound && !settings.focus) playResult(cfg.mode);
+      if (settings.haptic) vibrate();
       log(1, [key], true);
     } finally { setBusy(false); }
   };

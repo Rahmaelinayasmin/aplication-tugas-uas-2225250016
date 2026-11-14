@@ -51,7 +51,7 @@ export function HomeScreen() {
           <b>Belajar Bertahap</b><span>{done.size}/{LESSONS.length} unit selesai</span>
         </button>
         <button className="menu-tile t-lab" onClick={() => push({ name: 'lab' })}>
-          <b>Lab Lapangan</b><span>Koin, dadu, kartu, roda, kantong</span>
+          <b>Lab Lapangan</b><span>Koin, dadu, kartu, roda, kantong, kupon, tutup botol</span>
         </button>
         <button className="menu-tile t-practice" onClick={() => push({ name: 'practice' })}>
           <b>Latihan Literasi</b><span>{practiced}/{PRACTICE_ITEMS.length} soal dicoba</span>

@@ -25,6 +25,12 @@ export interface Settings {
   focus: boolean;
   reduced: boolean;
   quality: 'auto' | QualityTier;
+  /** suara lembut saat benda mendarat (otomatis mati di Mode Fokus) */
+  sound: boolean;
+  /** getar ringan saat hasil keluar */
+  haptic: boolean;
+  /** ukuran teks: 1 = 100%, 1.15, 1.3 (aksesibilitas, PRD §7) */
+  textScale: 1 | 1.15 | 1.3;
 }
 
 interface Ctx {
@@ -52,7 +58,10 @@ export const useApp = () => {
 const DEFAULT_SETTINGS: Settings = {
   focus: false,
   reduced: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches,
-  quality: 'auto'
+  quality: 'auto',
+  sound: true,
+  haptic: true,
+  textScale: 1
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -64,7 +73,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      setSettings(await getSetting('settings', DEFAULT_SETTINGS));
+      // gabung dengan bawaan agar pengaturan dari versi lama tetap lengkap
+      setSettings({ ...DEFAULT_SETTINGS, ...(await getSetting<Partial<Settings>>('settings', {})) });
       const last = await getSetting<string | null>('lastStudent', null);
       if (last) {
         const s = await getStudent(last);

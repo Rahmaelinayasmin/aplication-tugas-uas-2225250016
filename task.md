@@ -50,8 +50,11 @@ Status: `[x]` selesai · `[ ]` belum · `[~]` sebagian · ⏳ menunggu keputusan
 - [x] Server penelitian **Python/FastAPI** (`server/`): sinkron, SQLModel, analisis pandas (N-gain Hake, indikator, IL/EL/GL, fading), dasbor Jinja2, CLI analisis file ekspor, 14 tes pytest
 - [x] Aplikasi: Sinkron ke server di menu Guru / Peneliti; uji menyeluruh aplikasi ↔ server
 - [x] APK rilis bertanda tangan (keystore lokal)
+- [x] v1.2.0: suara lembut & getar (bisa dimatikan), ukuran teks 100/115/130%, F07 "Jelaskan ke teman" (diekspor & disinkron), tahap "buat sendiri" tabel 2 dadu (cari pasangan berjumlah 7)
+- [x] Kode di GitHub: https://github.com/Rahmaelinayasmin/aplication-tugas-uas-2225250016
+- [ ] Dadu polihedral 4/8/12/20 sisi (P2, di luar kurikulum kelas VIII — sengaja tidak dibuat)
 - [ ] Uji di ≥ 2 HP Android nyata (kelas bawah & menengah): fps, suhu, baterai 30 menit
-- [ ] Aksesibilitas: uji TalkBack & ukuran teks 130%
+- [~] Aksesibilitas: ukuran teks 130% diuji (tanpa geser horizontal); uji TalkBack di HP nyata belum
 
 ## D. Implementation
 - ⏳ Tentukan sekolah, kelas, jumlah siswa, jadwal sesi
