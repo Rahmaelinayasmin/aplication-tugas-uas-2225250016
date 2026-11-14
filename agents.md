@@ -3,7 +3,7 @@
 Berkas ini dibaca oleh agen AI (Claude Code, Cursor, Copilot, dll.) sebelum mengubah kode. Ikuti aturan ini di atas preferensi umum agen.
 
 ## 1. Konteks proyek
-- **MaWiYas**: aplikasi Android (Capacitor + React + TypeScript + three.js) untuk siswa SMP kelas VIII belajar **Konsep Dasar Peluang**.
+- **MaWiYas**: aplikasi Android (Capacitor + React + JavaScript + three.js; server penelitian Python) untuk siswa SMP kelas VIII belajar **Konsep Dasar Peluang**.
 - Tujuan penelitian: meningkatkan **Mathematical Literacy** dengan mengelola **beban kognitif** (Cognitive Load Theory).
 - Ini produk **penelitian pengembangan ADDIE**. Setiap fitur harus bisa ditelusuri ke temuan wawancara (lihat `prd.md §4`). Jangan menambah fitur yang tidak ada di PRD tanpa persetujuan peneliti.
 - Baca dulu: `prd.md` → `design.md` → `architecture.md` → `api.md` → `task.md`.
@@ -13,7 +13,7 @@ Berkas ini dibaca oleh agen AI (Claude Code, Cursor, Copilot, dll.) sebelum meng
 npm install            # pasang dependensi
 npm run dev            # server pengembangan (browser)
 npm run test           # vitest
-npm run lint           # eslint + tsc --noEmit
+npm run lint           # cek sintaks & impor JavaScript (tsc -p jsconfig.json)
 npm run build          # build web ke dist/
 npx cap sync android   # salin build ke proyek Android
 npx cap open android   # buka di Android Studio
@@ -34,8 +34,8 @@ Sebelum menyatakan tugas selesai: `npm run lint` dan `npm run test` harus lulus.
 ### Matematika
 8. Peluang selalu berupa `Fraction` (bilangan bulat). **Jangan** memakai float untuk menghitung atau membandingkan peluang; float hanya untuk tampilan desimal & grafik.
 9. Desimal ditampilkan dengan **koma** (0,375).
-10. Keacakan memakai `domain/probability/rng.ts` (crypto). **Jangan** memakai `Math.random()`.
-11. Hasil lempar 3D ditentukan oleh fisika + `faceReader`, **bukan** diatur sebelum animasi (kecuali mode reduced-motion yang memakai `rng.ts`).
+10. Keacakan memakai `domain/probability/rng.js` (crypto). **Jangan** memakai `Math.random()`.
+11. Hasil lempar 3D ditentukan oleh fisika + `faceReader`, **bukan** diatur sebelum animasi (kecuali mode reduced-motion yang memakai `rng.js`).
 12. Setiap perubahan pada `domain/` wajib disertai tes unit.
 
 ### Arsitektur
@@ -51,8 +51,8 @@ Sebelum menyatakan tugas selesai: `npm run lint` dan `npm run test` harus lulus.
 20. Jangan menyalin transkrip wawancara utuh ke repositori; rujuk dengan kode kutipan (IL01, EL02, …).
 
 ## 4. Gaya kode
-- TypeScript `strict`, tanpa `any` (gunakan `unknown` + validasi zod).
-- Komponen React: fungsi + hooks; nama berkas `PascalCase.tsx`; modul domain `camelCase.ts`.
+- **JavaScript** (ES2022, modul ESM) untuk aplikasi; **Python 3** untuk `server/`. Jangan menambah berkas `.ts`/`.tsx`. Bentuk data dijelaskan lewat komentar singkat atau JSDoc bila perlu; data dari luar (berkas, server) divalidasi manual sebelum dipakai.
+- Komponen React: fungsi + hooks; nama berkas `PascalCase.jsx`; modul domain `camelCase.js`.
 - Nama domain boleh Bahasa Indonesia bila itu istilah pelajaran (mis. `ruangSampel` di konten), tetapi API kode memakai bahasa Inggris konsisten seperti di `api.md`.
 - Komentar singkat menjelaskan *mengapa*, terutama keputusan CLT (mis. `// D1: label menempel di objek untuk mencegah split-attention`).
 

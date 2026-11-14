@@ -1,6 +1,6 @@
 # API — MaWiYas
 
-Aplikasi berjalan **offline**, sehingga "API" utamanya adalah **kontrak modul internal** (TypeScript) antar-lapisan, **format konten JSON**, **format ekspor data penelitian**, dan **REST opsional** untuk sinkronisasi di masa depan.
+Aplikasi berjalan **offline**, sehingga "API" utamanya adalah **kontrak modul internal** (kode JavaScript; bentuk data di bawah ditulis dengan notasi tipe hanya sebagai dokumentasi) antar-lapisan, **format konten JSON**, **format ekspor data penelitian**, dan **REST opsional** untuk sinkronisasi di masa depan.
 
 ---
 

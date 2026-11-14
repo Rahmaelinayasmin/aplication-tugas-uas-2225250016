@@ -6,15 +6,16 @@ Arsitektur teknis aplikasi Android offline dengan ilustrasi 3D three.js.
 
 > **Catatan implementasi v1.0 (14 Nov 2026)** — perbedaan dari rancangan awal di bawah:
 > - **Capacitor 7** (bukan 6): cocok dengan Android SDK 35 dan JDK 21 yang terpasang. minSdk 23, targetSdk 35.
-> - State memakai **React Context** (`src/app/store.tsx`), tanpa Zustand — cukup untuk aplikasi ini.
-> - Konten soal berupa **modul TypeScript bertipe** (`src/domain/content/*.ts`), bukan JSON + zod; konsistensi kunci jawaban dijaga oleh tes unit.
-> - Mesin 3D satu kelas `src/engine3d/LabEngine.ts` (stage, rumput, benda, fisika); renderer dibuat saat masuk Lab dan dibuang saat keluar.
+> - State memakai **React Context** (`src/app/store.jsx`), tanpa Zustand — cukup untuk aplikasi ini.
+> - Konten soal berupa **modul JavaScript** (`src/domain/content/*.js`), bukan JSON + zod; konsistensi kunci jawaban dijaga oleh tes unit.
+> - Mesin 3D satu kelas `src/engine3d/LabEngine.js` (stage, rumput, benda, fisika); renderer dibuat saat masuk Lab dan dibuang saat keluar.
 > - v1.1: tutup botol 3D (fisika, peluang empirik saja) dan kotak undian kupon A/B sudah ada.
+> - **14 Nov 2026:** seluruh kode aplikasi diubah dari TypeScript ke **JavaScript** (`.js`/`.jsx`); hasil build identik secara logika (diverifikasi per berkas).
 >
 > **Dua bahasa, dua lapisan:**
 > | Lapisan | Bahasa | Framework |
 > |---|---|---|
-> | Aplikasi Android (siswa & guru) | **JavaScript** (ditulis dalam TypeScript = JavaScript + tipe; di APK berjalan sebagai JavaScript murni) | React 18, three.js, cannon-es, Dexie, Vite, Capacitor 7 |
+> | Aplikasi Android (siswa & guru) | **JavaScript** (ES2022 + JSX, tanpa TypeScript sejak 14 Nov 2026) | React 18, three.js, cannon-es, Dexie, Vite, Capacitor 7 |
 > | Server penelitian (opsional) | **Python 3** | FastAPI, SQLModel/SQLAlchemy, pandas, Jinja2, pytest |
 >
 > Aplikasi → `POST /v1/sync` → server Python (SQLite) → analisis pandas → dasbor Jinja2. Tanpa server, file ekspor JSON dari aplikasi bisa dianalisis dengan `python -m app.cli`. Lihat `server/README.md`.
@@ -24,7 +25,7 @@ Arsitektur teknis aplikasi Android offline dengan ilustrasi 3D three.js.
 | Lapisan | Pilihan | Alasan |
 |---|---|---|
 | Kemasan Android | **Capacitor 6** (WebView Android) | three.js berjalan native di WebView; satu basis kode web; mudah dibangun dengan alat *vibe coding*; APK bisa dibuat dari Android Studio |
-| Bahasa | **TypeScript** (strict) | Mengurangi bug, cocok untuk agen AI |
+| Bahasa | **JavaScript** (aplikasi) + **Python 3** (server) | Diganti dari TypeScript atas keputusan peneliti (14 Nov 2026); logika dijaga oleh tes unit |
 | UI | **React 18** + **Vite 5** | Ekosistem luas, banyak contoh untuk agen AI |
 | 3D | **three.js r169** (dipin, dipakai langsung, bukan lewat wrapper) | Kontrol penuh atas kinerja, shader rumput |
 | Fisika | **cannon-es 0.20** | Ringan (±150 KB), cukup untuk dadu/koin/tutup botol |
@@ -69,31 +70,31 @@ Aplication/
 │  ├─ fonts/                   # Plus Jakarta Sans (lokal)
 │  └─ assets/3d/               # tekstur KTX2/PNG kecil, model .glb (kartu, kantong)
 ├─ src/
-│  ├─ main.tsx
+│  ├─ main.jsx
 │  ├─ app/                     # router, providers, layout
 │  ├─ ui/
 │  │  ├─ theme/tokens.css
 │  │  ├─ components/           # StepCard, FormulaChip, ProbabilityMeter, ...
 │  │  └─ screens/              # Lab/, Practice/, SampleSpace/, Glossary/, Test/, Teacher/
 │  ├─ engine3d/
-│  │  ├─ Stage.ts              # renderer, kamera, loop render on-demand
-│  │  ├─ quality.ts            # deteksi & tingkat kualitas
-│  │  ├─ field/                # GrassField.ts (InstancedMesh + shader), Sky.ts, PitchLines.ts
-│  │  ├─ objects/              # Coin.ts, Die.ts, CardDeck.ts, Spinner.ts, MarbleBag.ts, CouponBox.ts, BottleCap.ts
-│  │  ├─ physics/              # World.ts, faceReader.ts
-│  │  └─ ThreeStage.tsx        # komponen React pembungkus
+│  │  ├─ Stage.js              # renderer, kamera, loop render on-demand
+│  │  ├─ quality.js            # deteksi & tingkat kualitas
+│  │  ├─ field/                # GrassField.js (InstancedMesh + shader), Sky.js, PitchLines.js
+│  │  ├─ objects/              # Coin.js, Die.js, CardDeck.js, Spinner.js, MarbleBag.js, CouponBox.js, BottleCap.js
+│  │  ├─ physics/              # World.js, faceReader.js
+│  │  └─ ThreeStage.jsx        # komponen React pembungkus
 │  ├─ domain/
-│  │  ├─ probability/          # fraction.ts, sampleSpace.ts, events.ts, rng.ts, simulate.ts
-│  │  ├─ learning/             # hintEngine.ts, scoring.ts, path.ts, diagnostics.ts
-│  │  └─ content/              # items/*.json, lessons/*.json, glossary/*.json, schema.ts
+│  │  ├─ probability/          # fraction.js, sampleSpace.js, events.js, rng.js, simulate.js
+│  │  ├─ learning/             # hintEngine.js, scoring.js, path.js, diagnostics.js
+│  │  └─ content/              # items/*.json, lessons/*.json, glossary/*.json, schema.js
 │  ├─ data/
-│  │  ├─ db.ts                 # Dexie schema
+│  │  ├─ db.js                 # Dexie schema
 │  │  ├─ repositories/
-│  │  └─ export.ts
+│  │  └─ export.js
 │  └─ store/                   # Zustand stores
 ├─ tests/                      # vitest + playwright
 ├─ prd.md  design.md  architecture.md  api.md  task.md  agents.md  readme.md
-└─ capacitor.config.ts
+└─ capacitor.config.json
 ```
 
 ## 4. Mesin 3D
@@ -120,14 +121,14 @@ Benchmark 2 detik saat pertama dibuka; hasil disimpan; bisa diubah manual di Pen
 - Interaksi (Tinggi): uniform array posisi benda (maks. 4) membengkokkan rumput di sekitarnya.
 
 ### 4.4 Fisika & penentuan hasil
-1. Kecepatan awal, posisi, dan putaran diacak dengan `crypto.getRandomValues` (lihat `domain/probability/rng.ts`).
+1. Kecepatan awal, posisi, dan putaran diacak dengan `crypto.getRandomValues` (lihat `domain/probability/rng.js`).
 2. `cannon-es` mensimulasikan benda (dadu: `Box` dengan sudut membulat sebagai collider kotak; koin: `Cylinder` tipis) pada lantai dengan material pantulan rumput (restitution rendah, friction tinggi).
 3. Benda dianggap diam saat kecepatan linear & sudut < ambang selama 0,3 detik (`sleep`).
 4. `faceReader` membaca sisi atas: normal lokal tiap sisi diubah ke koordinat dunia; sisi dengan `dot(normal, up)` terbesar = hasil.
 5. Bila benda "miring" (dot < 0.9, mis. bersandar), beri dorongan kecil lalu tunggu lagi.
 6. Batas waktu 4 detik → fallback: hasil dibaca dari sisi terdekat ke atas.
 
-Hasil **ditentukan oleh fisika**, bukan diatur sebelumnya, sehingga sesuai dengan peluang nyata. Mode 10×/100×/1000× memakai `simulate.ts` (RNG langsung, tanpa fisika) dengan distribusi teoretis benda yang sama.
+Hasil **ditentukan oleh fisika**, bukan diatur sebelumnya, sehingga sesuai dengan peluang nyata. Mode 10×/100×/1000× memakai `simulate.js` (RNG langsung, tanpa fisika) dengan distribusi teoretis benda yang sama.
 
 ### 4.5 Aset
 - Dadu: geometri prosedural (`RoundedBoxGeometry`) + tekstur mata dari kanvas (tanpa file besar).
@@ -183,7 +184,7 @@ Tidak ada kolom nama, foto, atau lokasi.
 | Level | Cakupan |
 |---|---|
 | Unit (Vitest) | Fraction, sampleSpace, events, scoring per soal kisi-kisi, hintEngine |
-| Statistik | `simulate.ts`: uji chi-kuadrat 60.000 lemparan dadu (frekuensi tiap sisi dalam batas) |
+| Statistik | `simulate.js`: uji chi-kuadrat 60.000 lemparan dadu (frekuensi tiap sisi dalam batas) |
 | Komponen | Komponen UI dengan data contoh |
 | E2E (Playwright) | Alur diagnostik → lab → latihan → ekspor |
 | Perangkat | Uji manual di ≥ 2 HP Android (kelas bawah & menengah): fps, suhu, baterai 30 menit |

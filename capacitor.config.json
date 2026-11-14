@@ -1,0 +1,9 @@
+{
+  "appId": "com.mawiyas.app",
+  "appName": "MaWiYas",
+  "webDir": "dist",
+  "android": { "backgroundColor": "#FBF8F3" },
+  "plugins": {
+    "CapacitorHttp": { "enabled": true }
+  }
+}

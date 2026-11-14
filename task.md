@@ -19,7 +19,7 @@ Status: `[x]` selesai · `[ ]` belum · `[~]` sebagian · ⏳ menunggu keputusan
 
 ## B. Design
 - [x] PRD, design system, arsitektur, kontrak API
-- [x] Bank soal latihan 13 butir (3–4 per indikator), terpisah dari butir tes — `src/domain/content/practiceItems.ts`
+- [x] Bank soal latihan 13 butir (3–4 per indikator), terpisah dari butir tes — `src/domain/content/practiceItems.js`
 - [x] Teks langkah & 3 level petunjuk per tahap
 - [x] Diagnostik pecahan 6 butir + modul remedial "Pecahan Kilat"
 - [x] Adaptasi kuesioner beban kognitif 10 butir (skala 0–10) — **belum divalidasi**
@@ -27,7 +27,7 @@ Status: `[x]` selesai · `[ ]` belum · `[~]` sebagian · ⏳ menunggu keputusan
 - [ ] Uji keterbacaan teks aplikasi pada 1–2 siswa non-informan
 
 ## C. Development
-- [x] Vite + React + TypeScript strict + Vitest
+- [x] Vite + React + Vitest
 - [x] Capacitor 7 Android, ikon & splash MaWiYas, APK debug
 - [x] Token tema, font lokal (offline), komponen dasar
 - [x] Navigasi + tombol Back Android
@@ -52,6 +52,7 @@ Status: `[x]` selesai · `[ ]` belum · `[~]` sebagian · ⏳ menunggu keputusan
 - [x] APK rilis bertanda tangan (keystore lokal)
 - [x] v1.2.0: suara lembut & getar (bisa dimatikan), ukuran teks 100/115/130%, F07 "Jelaskan ke teman" (diekspor & disinkron), tahap "buat sendiri" tabel 2 dadu (cari pasangan berjumlah 7)
 - [x] Kode di GitHub: https://github.com/Rahmaelinayasmin/aplication-tugas-uas-2225250016
+- [x] Bahasa aplikasi diubah dari TypeScript ke **JavaScript** (server tetap **Python**); 20 tes lulus, APK 1.2.0 dibangun ulang
 - [ ] Dadu polihedral 4/8/12/20 sisi (P2, di luar kurikulum kelas VIII — sengaja tidak dibuat)
 - [ ] Uji di ≥ 2 HP Android nyata (kelas bawah & menengah): fps, suhu, baterai 30 menit
 - [~] Aksesibilitas: ukuran teks 130% diuji (tanpa geser horizontal); uji TalkBack di HP nyata belum

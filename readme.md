@@ -8,7 +8,7 @@ Dikembangkan dalam penelitian pengembangan **ADDIE** untuk meningkatkan **Mathem
 
 | Bagian | Bahasa | Framework & pustaka | Folder |
 |---|---|---|---|
-| **Aplikasi Android** (siswa & guru) | **JavaScript** (ditulis dengan TypeScript, yaitu JavaScript + tipe data; di dalam APK berjalan sebagai JavaScript) | **React 18** (UI), **three.js** (3D), **cannon-es** (fisika), **Dexie** (database IndexedDB), **Vite** (build), **Capacitor 7** (kemasan Android), Vitest (tes) | `src/`, `android/` |
+| **Aplikasi Android** (siswa & guru) | **JavaScript** (ES2022 + JSX) | **React 18** (UI), **three.js** (3D), **cannon-es** (fisika), **Dexie** (database IndexedDB), **Vite** (build), **Capacitor 7** (kemasan Android), Vitest (tes) | `src/`, `android/` |
 | **Server penelitian** (opsional) | **Python 3** | **FastAPI** (REST API), **SQLModel/SQLAlchemy** (database), **pandas** (analisis), **Jinja2** (dasbor), Uvicorn, pytest (tes) | `server/` |
 
 ```
@@ -63,7 +63,8 @@ Analisis otomatis (Python/pandas): N-gain + kategori Hake, skor per indikator, b
 npm install
 npm run dev              # buka di browser
 npm test                 # 20 tes unit
-npm run build            # typecheck + build web
+npm run lint             # cek sintaks JavaScript
+npm run build            # build web
 npx cap sync android
 cd android && gradlew.bat assembleDebug assembleRelease
 ```
@@ -81,7 +82,7 @@ py -m venv .venv
 
 ## Struktur
 ```
-src/                 aplikasi (JavaScript/TypeScript + React)
+src/                 aplikasi (JavaScript + React)
   domain/            logika peluang, penskoran, petunjuk, konten soal
   engine3d/          LabEngine three.js + cannon-es
   data/              IndexedDB, ekspor, sinkron ke server
