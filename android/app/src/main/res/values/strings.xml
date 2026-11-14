@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MaWiYas</string>
+    <string name="title_activity_main">MaWiYas</string>
+    <string name="package_name">com.mawiyas.app</string>
+    <string name="custom_url_scheme">com.mawiyas.app</string>
+</resources>

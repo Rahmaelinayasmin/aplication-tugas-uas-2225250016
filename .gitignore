@@ -1,0 +1,18 @@
+node_modules/
+dist/
+*.log
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/app/src/main/assets/public/
+.DS_Store
+# kunci tanda tangan rilis — simpan cadangan di tempat aman, JANGAN dibagikan
+android/keystore.properties
+*.jks
+# Python
+server/.venv/
+server/*.db
+__pycache__/
+.pytest_cache/
+hasil-analisis/

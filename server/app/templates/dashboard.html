@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dasbor MaWiYas</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --bg:#FBF8F3; --surface:#fff; --line:#E7DFD2; --ink:#2E3440; --soft:#5B6475; --ns:#2F6F9F; --na:#B5591A; --mint:#BDEBD6; --peach:#FFD6BA; --lav:#D9CCF5; --butter:#FFF1B8; --primary:#5B8DEF; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Segoe UI", Roboto, system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 48px; display: flex; flex-direction: column; gap: 16px; }
+  header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  h1 { margin: 0; font-size: 22px; } h2 { margin: 0 0 8px; font-size: 16px; }
+  .sub { color: var(--soft); font-size: 13px; }
+  .card { background: var(--surface); border-radius: 14px; padding: 16px; box-shadow: 0 1px 0 var(--line); min-width: 0; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .kpi { border-radius: 12px; padding: 12px 14px; }
+  .kpi small { display: block; color: var(--soft); font-size: 12px; font-weight: 600; }
+  .kpi b { font-size: 24px; font-variant-numeric: tabular-nums; }
+  .k1 { background: var(--lav); } .k2 { background: var(--mint); } .k3 { background: var(--peach); } .k4 { background: var(--butter); }
+  .wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 14px; }
+  th, td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  th { font-size: 12px; color: var(--soft); }
+  .bar { height: 8px; border-radius: 6px; background: #F5F1EA; position: relative; min-width: 120px; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; }
+  .bar i.pre { background: #A9CFF2; } .bar i.post { background: #E8863A; opacity: .75; height: 4px; top: 2px; }
+  .pill { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: #F5F1EA; }
+  .pill.tinggi { background: #DDF4E9; color: #2E8B62; } .pill.sedang { background: var(--butter); color: #7A5A00; } .pill.rendah { background: #FBE4EA; color: #B23A55; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  select, input[type=file], button { font: inherit; min-height: 38px; border-radius: 10px; border: 1px solid var(--line); background: #fff; padding: 0 10px; }
+  button { background: var(--primary); color: #fff; border: 0; font-weight: 700; cursor: pointer; }
+  a { color: var(--ns); }
+  .warn { background: var(--butter); border-radius: 12px; padding: 10px 14px; }
+  .note { color: var(--soft); font-size: 13px; margin: 8px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Dasbor MaWiYas</h1>
+      <div class="sub">Sumber data: {{ source }} · Mathematical Literacy (maks. {{ s.test_max }}) · server {{ version }}</div>
+    </div>
+    {% if classes %}
+    <form method="get" action="/dashboard">
+      <input type="hidden" name="key" value="{{ key }}">
+      <select name="kelas" onchange="this.form.submit()" aria-label="Pilih kelas">
+        <option value="">Semua kelas</option>
+        {% for c in classes %}<option value="{{ c }}" {% if c == kelas %}selected{% endif %}>Kelas {{ c }}</option>{% endfor %}
+      </select>
+    </form>
+    {% endif %}
+  </header>
+
+  {% if default_keys %}<div class="warn">Server masih memakai kunci bawaan. Atur <code>MAWIYAS_ENROLL_KEY</code> dan <code>MAWIYAS_TEACHER_KEY</code> sebelum dipakai di sekolah.</div>{% endif %}
+
+  <section class="kpis">
+    <div class="kpi k1"><small>Siswa (pre & post)</small><b>{{ s.berpasangan }}</b> <span class="sub">/ {{ s.siswa }}</span></div>
+    <div class="kpi k2"><small>Rata-rata pretest</small><b>{{ s.rata_pretest if s.rata_pretest is not none else '–' }}</b></div>
+    <div class="kpi k3"><small>Rata-rata posttest</small><b>{{ s.rata_posttest if s.rata_posttest is not none else '–' }}</b></div>
+    <div class="kpi k4"><small>Rata-rata N-gain</small><b>{{ s.rata_n_gain if s.rata_n_gain is not none else '–' }}</b> <span class="pill {{ s.kategori_n_gain }}">{{ s.kategori_n_gain }}</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Skor per kode siswa</h2>
+    <div class="wrap"><table>
+      <thead><tr><th>Kode</th><th>Kelas</th><th>Diagnostik</th><th>Pretest</th><th>Posttest</th><th>Pre → Post</th><th>N-gain</th><th>Kategori</th></tr></thead>
+      <tbody>
+      {% for r in t.scores %}
+        <tr>
+          <td>{{ r.student_code }}</td><td>{{ r.class_code or '–' }}</td>
+          <td>{{ ((r.diagnostic or 0) * 100)|round|int ~ '%' if r.diagnostic is not none else '–' }}</td>
+          <td>{{ r.pretest|int if r.pretest is not none else '–' }}</td><td>{{ r.posttest|int if r.posttest is not none else '–' }}</td>
+          <td><div class="bar">{% if r.pretest is not none %}<i class="pre" style="width:{{ r.pretest / s.test_max * 100 }}%"></i>{% endif %}{% if r.posttest is not none %}<i class="post" style="width:{{ r.posttest / s.test_max * 100 }}%"></i>{% endif %}</div></td>
+          <td>{{ r.n_gain if r.n_gain is not none else '–' }}</td><td><span class="pill {{ r.kategori }}">{{ r.kategori }}</span></td>
+        </tr>
+      {% else %}<tr><td colspan="8">Belum ada data tes.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+    <p class="note">N-gain = (post − pre) / ({{ s.test_max }} − pre). Kategori Hake: tinggi ≥ 0,7 · sedang 0,3–0,7 · rendah &lt; 0,3. Jawaban alasan yang belum dicek guru di HP: <b>{{ s.perlu_dicek }}</b>.</p>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>Skor per indikator (%)</h2>
+      <div class="wrap"><table>
+        <thead><tr><th>Indikator</th><th>Pretest</th><th>Posttest</th><th>Selisih</th></tr></thead>
+        <tbody>{% for r in t.indicators %}<tr><td>{{ r.indikator }}</td><td>{{ r.pretest if r.pretest is not none else '–' }}</td><td>{{ r.posttest if r.posttest is not none else '–' }}</td><td>{{ r.selisih if r.selisih is not none else '–' }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <h2>Beban kognitif (0–10)</h2>
+      <div class="wrap"><table>
+        <thead><tr><th>Konteks</th><th>n</th><th>Intrinsik</th><th>Ekstrinsik</th><th>Germane</th></tr></thead>
+        <tbody>{% for r in t.cognitive_load %}<tr><td>{{ r.context }}</td><td>{{ r.n }}</td><td>{{ r.IL }}</td><td>{{ r.EL }}</td><td>{{ r.GL }}</td></tr>{% else %}<tr><td colspan="5">Belum ada kuesioner.</td></tr>{% endfor %}</tbody>
+      </table></div>
+      <p class="note">Kuesioner adaptasi Leppink dkk. (2013), belum divalidasi pada siswa SMP. EL rendah dan GL tinggi = arah yang diharapkan.</p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Fading petunjuk (latihan)</h2>
+    <div class="wrap"><table>
+      <thead><tr><th>Kode</th><th>Soal latihan</th><th>Petunjuk/langkah (awal)</th><th>Petunjuk/langkah (akhir)</th><th>Memudar?</th></tr></thead>
+      <tbody>{% for r in t.hint_fading %}<tr><td>{{ r.student_code }}</td><td>{{ r.soal_latihan }}</td><td>{{ r.petunjuk_awal }}</td><td>{{ r.petunjuk_akhir }}</td><td>{{ 'ya' if r.memudar else 'belum' }}</td></tr>{% else %}<tr><td colspan="5">Belum ada data latihan.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Unduh & analisis file</h2>
+    <p>CSV: {% for k in ['skor','indikator','beban-kognitif','petunjuk'] %}<a href="/v1/export/{{ k }}.csv?key={{ key }}{% if kelas %}&kelas={{ kelas }}{% endif %}">{{ k }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+    <form method="post" action="/dashboard/upload" enctype="multipart/form-data">
+      <input type="hidden" name="key" value="{{ key }}">
+      <input type="file" name="file" accept=".json,application/json" required aria-label="File ekspor JSON">
+      <button type="submit">Analisis file ekspor JSON</button>
+    </form>
+    <p class="note">Untuk HP yang tidak disinkron: di aplikasi buka Guru / Peneliti → Semua (JSON), lalu unggah file itu di sini.</p>
+  </section>
+</main>
+</body>
+</html>

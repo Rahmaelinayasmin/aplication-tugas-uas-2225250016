@@ -1,0 +1,41 @@
+/* Token desain — design.md §2 (soft colorful). Satu tema terang pastel, dipilih sengaja (D2). */
+:root {
+  --bg: #FBF8F3;
+  --surface: #FFFFFF;
+  --surface-2: #F5F1EA;
+  --line: #E7DFD2;
+  --ink: #2E3440;
+  --ink-soft: #5B6475;
+
+  --sky: #BFE3F5;
+  --grass-1: #A8D5A2;
+  --grass-2: #8EC48A;
+  --mint: #BDEBD6;
+  --peach: #FFD6BA;
+  --lavender: #D9CCF5;
+  --butter: #FFF1B8;
+  --rose: #F8C8D4;
+
+  /* n(S) selalu biru, n(A) selalu oranye (D5) */
+  --ns: #4A90C2;
+  --ns-text: #2F6F9F;
+  --ns-soft: #DCEBF7;
+  --na: #E8863A;
+  --na-text: #B5591A;
+  --na-soft: #FDE6D3;
+
+  --primary: #5B8DEF;
+  --primary-ink: #FFFFFF;
+  --primary-soft: #E4ECFD;
+  --ok: #2E8B62;
+  --ok-soft: #DDF4E9;
+  --bad: #B23A55;
+  --bad-soft: #FBE4EA;
+  --hint: #6A55B0;
+  --hint-soft: #EEE8FB;
+
+  --f-ui: 'Plus Jakarta Sans', 'Segoe UI', Roboto, system-ui, sans-serif;
+  --f-num: 'JetBrains Mono', ui-monospace, 'Roboto Mono', monospace;
+  --r: 14px;
+  color-scheme: light;
+}

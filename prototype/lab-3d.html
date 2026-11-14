@@ -1,0 +1,1113 @@
+<title>Lab Lapangan Peluang</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: app shell — top bar + object tabs, 3D pitch stage, integrated formula/chart panel (side by side when wide).
+   Single light pastel look by choice (soft colorful, design.md §2). */
+:root{
+  --bg:#FBF8F3; --surface:#FFFFFF; --surface-2:#F5F1EA; --line:#E7DFD2;
+  --ink:#2E3440; --ink-soft:#5B6475;
+  --sky:#BFE3F5; --mint:#BDEBD6; --peach:#FFD6BA; --lavender:#D9CCF5; --butter:#FFF1B8; --rose:#F8C8D4;
+  --ns:#4A90C2; --ns-text:#2F6F9F; --ns-soft:#DCEBF7;
+  --na:#E8863A; --na-text:#B5591A; --na-soft:#FDE6D3;
+  --primary:#5B8DEF; --primary-ink:#FFFFFF; --primary-soft:#E4ECFD;
+  --f-ui:'Plus Jakarta Sans', 'Segoe UI', Roboto, system-ui, sans-serif;
+  --f-num:'JetBrains Mono', ui-monospace, 'Roboto Mono', monospace;
+  --r:14px;
+  color-scheme: light;
+}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit}
+.app{height:100%;display:grid;grid-template-rows:auto auto 1fr;min-height:0}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px 6px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--mint);display:grid;place-items:center;flex:none}
+.logo svg{width:22px;height:22px}
+.brand h1{font-size:17px;font-weight:800;margin:0;letter-spacing:-.01em}
+.brand p{margin:0;font-size:12px;color:var(--ink-soft)}
+.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;min-height:40px;padding:0 12px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer}
+.icon-btn:focus-visible,.tab:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:4px 8px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:0;background:var(--surface-2);border-radius:999px;min-height:40px;padding:0 14px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--ink-soft)}
+.tab[aria-selected="true"]{background:var(--ink);color:#fff}
+.tab .dot{width:10px;height:10px;border-radius:50%}
+
+/* main */
+.main{display:grid;grid-template-rows:minmax(240px,46%) 1fr;min-height:0}
+.stage{position:relative;min-height:0;overflow:hidden;background:var(--sky)}
+#c{display:block;width:100%;height:100%;touch-action:none}
+#tags{position:absolute;inset:0;pointer-events:none}
+.tag{position:absolute;transform:translate(-50%,-100%);background:var(--surface);color:var(--ink);border-radius:10px;padding:3px 9px;font-weight:800;font-size:14px;
+  box-shadow:0 2px 8px rgba(46,52,64,.18);white-space:nowrap;display:flex;align-items:center;gap:6px;font-family:var(--f-num)}
+.tag .sw{width:10px;height:10px;border-radius:3px}
+.tag.in{background:var(--na-soft);color:var(--na-text);box-shadow:0 0 0 2px var(--na),0 2px 8px rgba(46,52,64,.18)}
+.stage-hint{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:10px;font-size:11px;color:var(--ink);background:rgba(255,255,255,.72);border-radius:8px;padding:3px 8px}
+.toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;border-radius:10px;padding:6px 12px;max-width:calc(100% - 32px)}
+
+/* panel */
+.panel{min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding-block:10px 24px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.actions{position:sticky;top:-10px;z-index:2;background:var(--bg);padding-block:8px 6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:0;border-radius:12px;min-height:46px;padding:0 16px;font-weight:800;font-size:15px;cursor:pointer;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.main-act{background:var(--primary);color:var(--primary-ink);box-shadow:none;flex:1 1 140px}
+.btn.fast{min-width:58px;padding:0 10px;font-family:var(--f-num);font-size:14px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.label{font-size:12px;font-weight:700;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;margin:0 0 6px}
+.chip{border:0;border-radius:10px;min-height:38px;padding:0 12px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);font-weight:600;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--na-soft);box-shadow:inset 0 0 0 2px var(--na);color:var(--na-text)}
+.chip.opt[aria-pressed="true"]{background:var(--primary-soft);box-shadow:inset 0 0 0 2px var(--primary);color:#2C4FA0}
+.card{background:var(--surface);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 0 var(--line)}
+.event-desc{margin:0;font-size:14px}
+.event-desc b{color:var(--na-text)}
+.ns-t{color:var(--ns-text);font-weight:800}.na-t{color:var(--na-text);font-weight:800}
+
+/* formula (D1: formula lives beside the scene & chart) */
+.formula{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:18px;font-weight:700}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;font-family:var(--f-num);vertical-align:middle}
+.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 4px 2px}
+.frac>span:last-child{padding:2px 4px 0}
+.frac .na{color:var(--na-text)}.frac .ns{color:var(--ns-text)}
+.frac.txt{font-family:var(--f-ui);font-size:14px}
+.eq{color:var(--ink-soft)}
+.note{font-size:12.5px;color:var(--ink-soft);margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--surface-2);border-radius:10px;padding:8px 10px;min-width:0}
+.stat small{display:block;font-size:11px;color:var(--ink-soft);font-weight:600}
+.stat b{font-family:var(--f-num);font-size:17px;font-variant-numeric:tabular-nums}
+
+/* chart + meter */
+.chart-wrap{position:relative}
+#chart{width:100%;height:150px;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft)}
+.legend i{display:inline-block;width:18px;height:0;border-top:3px solid var(--na);vertical-align:middle;margin-right:6px}
+.legend i.d{border-top:2px dashed var(--ns)}
+.meter{position:relative;height:34px;margin:4px 8px 0}
+.meter .track{position:absolute;left:0;right:0;top:12px;height:8px;border-radius:8px;background:linear-gradient(90deg,var(--rose),var(--butter),var(--mint))}
+.meter .tick{position:absolute;top:22px;font-size:10.5px;color:var(--ink-soft);transform:translateX(-50%)}
+.meter .mk{position:absolute;top:2px;width:3px;height:28px;border-radius:2px;transform:translateX(-50%)}
+.meter .mk.t{background:var(--ns)}.meter .mk.e{background:var(--na)}
+
+/* sample space */
+.ss{display:flex;flex-wrap:wrap;gap:6px}
+.ss .cell{min-width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--ns-soft);font-family:var(--f-num);font-size:13px;font-weight:700;padding:0 6px;color:var(--ns-text)}
+.ss .cell.in{background:var(--na-soft);color:var(--na-text);box-shadow:inset 0 0 0 2px var(--na)}
+.ss .cell.last{outline:3px solid var(--ink);outline-offset:1px}
+.grid-wrap{overflow-x:auto}
+table.grid{border-collapse:separate;border-spacing:3px;font-family:var(--f-num);font-size:11px}
+table.grid th{font-weight:700;color:var(--ink-soft);padding:0 2px;white-space:nowrap}
+table.grid td{width:34px;height:26px;text-align:center;border-radius:6px;background:var(--ns-soft);color:var(--ns-text)}
+table.grid td.in{background:var(--na-soft);color:var(--na-text);box-shadow:inset 0 0 0 2px var(--na)}
+table.grid td.last{outline:2px solid var(--ink)}
+table.grid.cards td{width:20px;height:22px;font-size:10px}
+.ball{width:26px;height:26px;border-radius:50%;box-shadow:inset -4px -4px 6px rgba(0,0,0,.12)}
+.ss .ballcell{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--ns-soft)}
+.ss .ballcell.in{background:var(--na-soft);box-shadow:inset 0 0 0 2px var(--na)}
+.hist{display:flex;gap:5px;flex-wrap:wrap}
+.hist span{font-family:var(--f-num);font-size:12px;padding:3px 7px;border-radius:7px;background:var(--surface-2)}
+.hist span.in{background:var(--na-soft);color:var(--na-text);font-weight:700}
+.context{background:var(--butter);border-radius:var(--r);padding:12px 14px;font-size:14px}
+.context b{display:block;margin-bottom:2px}
+
+/* settings sheet */
+.sheet{position:fixed;right:max(12px,env(safe-area-inset-right,0px));top:calc(56px + env(safe-area-inset-top,0px));z-index:20;background:var(--surface);border-radius:16px;box-shadow:0 10px 40px rgba(46,52,64,.22);padding:14px;width:min(320px,calc(100vw - 24px));display:flex;flex-direction:column;gap:12px}
+.sheet h2{font-size:15px;margin:0}
+.sw-row{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
+.sw-row small{display:block;color:var(--ink-soft);font-size:12px}
+.sw-row input[type=checkbox]{width:22px;height:22px;accent-color:var(--primary);flex:none}
+.sw-row select{font:inherit;border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:var(--surface)}
+
+@media (min-width:900px), (orientation:landscape) and (min-width:640px){
+  .main{grid-template-rows:1fr;grid-template-columns:minmax(0,1.45fr) minmax(320px,1fr)}
+  .panel{padding-left:16px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" fill="#fff"/><circle cx="8" cy="8" r="1.8" fill="#2E3440"/><circle cx="16" cy="16" r="1.8" fill="#2E3440"/><circle cx="12" cy="12" r="1.8" fill="#E8863A"/></svg>
+      </div>
+      <div><h1>Lab Lapangan</h1><p>Konsep Dasar Peluang · Kelas VIII</p></div>
+    </div>
+    <button class="icon-btn" id="btnSettings" aria-expanded="false" aria-controls="settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+      Pengaturan
+    </button>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Benda peluang" id="tabs"></nav>
+
+  <main class="main">
+    <section class="stage" id="stage" aria-label="Lapangan 3D">
+      <canvas id="c"></canvas>
+      <div id="tags"></div>
+      <div class="stage-hint" id="stageHint">Geser untuk memutar · ketuk 2× untuk kembali</div>
+      <div class="toast" id="toast" hidden></div>
+    </section>
+
+    <section class="panel" id="panel">
+      <div class="actions" id="actions">
+        <button class="btn main-act" id="btnMain">Lempar</button>
+        <button class="btn fast" data-n="10">10×</button>
+        <button class="btn fast" data-n="100">100×</button>
+        <button class="btn fast" data-n="1000">1000×</button>
+        <button class="btn ghost" id="btnReset">Ulang</button>
+      </div>
+      <div id="variants" class="row" aria-label="Pilihan benda"></div>
+      <div>
+        <p class="label">Kejadian A</p>
+        <div class="row" id="events"></div>
+      </div>
+      <div class="card" id="mathCard"></div>
+      <div class="card">
+        <div class="chart-wrap"><canvas id="chart" aria-label="Grafik frekuensi relatif"></canvas></div>
+        <div class="legend"><span><i></i>frekuensi relatif (hasil percobaan)</span><span><i class="d"></i>peluang teoretis</span></div>
+        <div class="meter" id="meter" aria-hidden="true"></div>
+        <p class="note" id="chartNote"></p>
+      </div>
+      <div class="card">
+        <p class="label" style="margin:0" id="ssLabel">Ruang sampel</p>
+        <div id="ss"></div>
+        <div>
+          <p class="label">Hasil terakhir</p>
+          <div class="hist" id="hist"></div>
+        </div>
+      </div>
+      <div class="context" id="context"></div>
+    </section>
+  </main>
+
+  <div class="sheet" id="settings" hidden role="dialog" aria-label="Pengaturan">
+    <h2>Pengaturan</h2>
+    <label class="sw-row" for="optFocus"><span>Mode Fokus<small>Rumput diam, tampilan lebih tenang</small></span><input type="checkbox" id="optFocus"></label>
+    <label class="sw-row" for="optReduce"><span>Kurangi gerakan<small>Hasil langsung tampil tanpa animasi lempar</small></span><input type="checkbox" id="optReduce"></label>
+    <label class="sw-row" for="optQuality"><span>Kualitas grafis<small id="tierNow"></small></span>
+      <select id="optQuality"><option value="auto">Otomatis</option><option value="hemat">Hemat</option><option value="sedang">Sedang</option><option value="tinggi">Tinggi</option></select></label>
+    <button class="btn" id="btnCloseSettings">Tutup</button>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
+import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
+
+/* ================= utilities ================= */
+const $ = s => document.querySelector(s);
+const U32 = new Uint32Array(1);
+// Probability randomness: crypto RNG, no modulo bias (agents.md rule 10)
+function rand(){ crypto.getRandomValues(U32); return U32[0] / 4294967296; }
+function randInt(n){ const lim = Math.floor(4294967296 / n) * n; let x; do { crypto.getRandomValues(U32); x = U32[0]; } while (x >= lim); return x % n; }
+// Decorative noise only (grass placement, textures) — seeded so the scene looks the same each time
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const gcd = (a, b) => b ? gcd(b, a % b) : Math.abs(a);
+const dec = (x, d = 3) => x.toLocaleString('id-ID', { maximumFractionDigits: d });
+const easeOut = k => 1 - Math.pow(1 - k, 3);
+const easeInOut = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const store = {
+  get(k, d){ try { const v = localStorage.getItem('lp:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem('lp:' + k, JSON.stringify(v)); } catch {} }
+};
+function vibrate(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch {} }
+let toastTimer;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2600); }
+function canvas2d(w, h){ const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; }
+function texFrom(c, aniso = 4){ const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return t; }
+function roundRect(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+/* ================= domain: sample spaces & events ================= */
+const SUITS = [
+  { k: 'S', name: 'sekop', sym: '♠︎', red: false },
+  { k: 'C', name: 'keriting', sym: '♣︎', red: false },
+  { k: 'H', name: 'hati', sym: '♥︎', red: true },
+  { k: 'D', name: 'wajik', sym: '♦︎', red: true }
+];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const SUIT = Object.fromEntries(SUITS.map(s => [s.k, s]));
+const SPIN = {
+  sama: [{ c: 'merah', w: 1, col: '#F4A3A8' }, { c: 'kuning', w: 1, col: '#FFE08A' }, { c: 'biru', w: 1, col: '#A9CFF2' }, { c: 'hijau', w: 1, col: '#A8DDB5' }],
+  beda: [{ c: 'merah', w: 4, col: '#F4A3A8' }, { c: 'biru', w: 2, col: '#A9CFF2' }, { c: 'kuning', w: 1, col: '#FFE08A' }, { c: 'hijau', w: 1, col: '#A8DDB5' }]
+};
+const BALL_COL = { merah: '#F08C8C', kuning: '#FFD45E', hijau: '#86CF98' };
+const BAG = [...Array(5)].map((_, i) => 'm' + (i + 1)).concat([...Array(3)].map((_, i) => 'k' + (i + 1)), [...Array(2)].map((_, i) => 'h' + (i + 1)));
+const ballColor = k => ({ m: 'merah', k: 'kuning', h: 'hijau' })[k[0]];
+const PRIMES = new Set([2, 3, 5]);
+
+const state = {
+  mode: store.get('mode', 'dice'),
+  coinStyle: store.get('coinStyle', 'emas'), coinCount: store.get('coinCount', 1),
+  dieStyle: store.get('dieStyle', 'klasik'), dieCount: store.get('dieCount', 2),
+  spinKind: store.get('spinKind', 'sama'),
+  eventIdx: 0, outcomes: [], busy: false,
+  focus: store.get('focus', false),
+  reduced: store.get('reduce', matchMedia('(prefers-reduced-motion: reduce)').matches),
+  qualityPref: store.get('quality', 'auto'), tier: 'sedang'
+};
+
+function space(){
+  switch (state.mode) {
+    case 'coin': return state.coinCount === 1 ? { outcomes: ['A', 'G'] } : { outcomes: ['AA', 'AG', 'GA', 'GG'] };
+    case 'dice': if (state.dieCount === 1) return { outcomes: ['1','2','3','4','5','6'] };
+      { const o = []; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) o.push(a + '-' + b); return { outcomes: o }; }
+    case 'cards': { const o = []; for (const s of SUITS) for (const r of RANKS) o.push(r + s.k); return { outcomes: o }; }
+    case 'spinner': { const s = SPIN[state.spinKind]; return { outcomes: s.map(x => x.c), weights: state.spinKind === 'beda' ? s.map(x => x.w) : null }; }
+    case 'bag': return { outcomes: BAG };
+  }
+}
+const sum2 = k => k.split('-').reduce((a, b) => a + +b, 0);
+function events(){
+  switch (state.mode) {
+    case 'coin': return state.coinCount === 1
+      ? [{ label: 'Muncul Angka', desc: 'muncul sisi <b>Angka</b>', test: k => k === 'A' }, { label: 'Muncul Gambar', desc: 'muncul sisi <b>Gambar</b>', test: k => k === 'G' }]
+      : [{ label: 'Keduanya Angka', desc: '<b>kedua koin Angka</b>', test: k => k === 'AA' },
+         { label: 'Tepat satu Angka', desc: '<b>tepat satu</b> koin Angka', test: k => k.split('').filter(c => c === 'A').length === 1 },
+         { label: 'Paling sedikit satu Gambar', desc: '<b>paling sedikit satu</b> Gambar', test: k => k.includes('G') }];
+    case 'dice': return state.dieCount === 1
+      ? [{ label: 'Genap', desc: 'muncul mata dadu <b>genap</b>', test: k => +k % 2 === 0 },
+         { label: 'Prima', desc: 'muncul mata dadu <b>prima</b> (2 termasuk prima)', test: k => PRIMES.has(+k) },
+         { label: 'Prima ganjil', desc: 'muncul mata dadu <b>prima dan ganjil</b> (2 tidak ikut)', test: k => PRIMES.has(+k) && +k % 2 === 1 },
+         { label: 'Lebih dari 4', desc: 'muncul mata dadu <b>lebih dari 4</b>', test: k => +k > 4 },
+         { label: 'Mata 6', desc: 'muncul mata dadu <b>6</b>', test: k => k === '6' }]
+      : [{ label: 'Jumlah 7', desc: '<b>jumlah</b> mata kedua dadu <b>= 7</b>', test: k => sum2(k) === 7 },
+         { label: 'Kembar', desc: 'mata kedua dadu <b>sama</b> (kembar)', test: k => { const [a, b] = k.split('-'); return a === b; } },
+         { label: 'Jumlah > 9', desc: '<b>jumlah</b> mata dadu <b>lebih dari 9</b>', test: k => sum2(k) > 9 },
+         { label: 'Dadu ungu = 6', desc: '<b>dadu ungu</b> (dadu 1) menunjukkan <b>6</b>', test: k => k.startsWith('6-') }];
+    case 'cards': return [
+      { label: 'Kartu As', desc: 'terambil kartu <b>As</b>', test: k => k[0] === 'A' },
+      { label: 'Hati', desc: 'terambil kartu <b>hati</b> ♥︎', test: k => k.endsWith('H') },
+      { label: 'Kartu merah', desc: 'terambil kartu <b>berwarna merah</b> (hati atau wajik)', test: k => SUIT[k.slice(-1)].red },
+      { label: 'Kartu bergambar', desc: 'terambil kartu <b>bergambar</b> (J, Q, K)', test: k => 'JQK'.includes(k[0]) && k.length === 2 },
+      { label: 'Bukan sekop', desc: 'terambil kartu <b>bukan sekop</b>', test: k => !k.endsWith('S') }];
+    case 'spinner': return [
+      { label: 'Merah', desc: 'jarum berhenti di <b>merah</b>', test: k => k === 'merah' },
+      { label: 'Biru', desc: 'jarum berhenti di <b>biru</b>', test: k => k === 'biru' },
+      { label: 'Bukan merah', desc: 'jarum berhenti <b>bukan di merah</b>', test: k => k !== 'merah' }];
+    case 'bag': return [
+      { label: 'Bola kuning', desc: 'terambil bola <b>kuning</b>', test: k => k[0] === 'k' },
+      { label: 'Bukan merah', desc: 'terambil bola <b>bukan merah</b>', test: k => k[0] !== 'm' },
+      { label: 'Bola hijau', desc: 'terambil bola <b>hijau</b>', test: k => k[0] === 'h' }];
+  }
+}
+const curEvent = () => events()[Math.min(state.eventIdx, events().length - 1)];
+function theory(){
+  const sp = space(), ev = curEvent();
+  if (sp.weights) { let a = 0, t = 0; sp.outcomes.forEach((k, i) => { t += sp.weights[i]; if (ev.test(k)) a += sp.weights[i]; }); return { nA: a, nS: t, area: true }; }
+  return { nA: sp.outcomes.filter(ev.test).length, nS: sp.outcomes.length, area: false };
+}
+function sample(){
+  const sp = space();
+  if (sp.weights) { let r = randInt(sp.weights.reduce((a, b) => a + b, 0)); for (let i = 0; i < sp.outcomes.length; i++) { r -= sp.weights[i]; if (r < 0) return sp.outcomes[i]; } }
+  return sp.outcomes[randInt(sp.outcomes.length)];
+}
+function fmtKey(k){
+  switch (state.mode) {
+    case 'dice': return state.dieCount === 1 ? k : '(' + k.replace('-', ',') + ')';
+    case 'cards': return k.slice(0, -1) + SUIT[k.slice(-1)].sym;
+    case 'bag': return ballColor(k);
+    default: return k;
+  }
+}
+
+/* ================= 3D stage ================= */
+const stageEl = $('#stage'), canvas = $('#c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+const TIERS = {
+  hemat:  { dpr: 1,   grass: 3500,  shadow: 512,  ground: 1024 },
+  sedang: { dpr: 1.5, grass: 11000, shadow: 1024, ground: 2048 },
+  tinggi: { dpr: 2,   grass: 30000, shadow: 2048, ground: 2048 }
+};
+function autoTier(){
+  const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4;
+  if (mem <= 3 || cores <= 4) return 'hemat';
+  if (mem >= 8 && cores >= 8) return 'tinggi';
+  return 'sedang';
+}
+state.tier = state.qualityPref === 'auto' ? autoTier() : state.qualityPref;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 140);
+
+// sky backdrop + fog that melts the pitch into the horizon
+{
+  const [c, g] = canvas2d(4, 256);
+  const gr = g.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, '#A7D5EF'); gr.addColorStop(.55, '#D6ECF7'); gr.addColorStop(1, '#EEF7F1');
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
+  scene.background = texFrom(c, 1);
+  scene.fog = new THREE.Fog(0xE2F0F3, 20, 48);
+}
+// image-based lighting so metal coins and glossy dice have something to reflect
+{
+  const env = new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.SphereGeometry(40, 32, 16), new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: 'varying vec3 vP; void main(){ float y = vP.y; vec3 sky = mix(vec3(0.92,0.96,1.0), vec3(0.45,0.70,0.92), smoothstep(0.0,0.9,y)); vec3 gr = mix(vec3(0.75,0.85,0.72), vec3(0.30,0.48,0.28), smoothstep(0.0,-0.5,y)); gl_FragColor = vec4(y > 0.0 ? sky : gr, 1.0); }'
+  })));
+  const p1 = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), new THREE.MeshBasicMaterial({ color: new THREE.Color(3.4, 3.1, 2.7) }));
+  p1.position.set(18, 22, 14); p1.lookAt(0, 0, 0); env.add(p1);
+  const p2 = new THREE.Mesh(new THREE.PlaneGeometry(14, 6), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.3, 1.45, 1.7) }));
+  p2.position.set(-20, 12, -8); p2.lookAt(0, 0, 0); env.add(p2);
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(env, 0.03).texture; pm.dispose();
+  scene.environmentIntensity = 0.75;
+}
+scene.add(new THREE.HemisphereLight(0xEAF6FF, 0x8DBF88, 0.7));
+const sun = new THREE.DirectionalLight(0xFFF2DF, 2.4);
+sun.position.set(5, 11, 6);
+sun.castShadow = true;
+Object.assign(sun.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7, near: 1, far: 30 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+scene.add(sun);
+
+/* ---------- football-style pitch ---------- */
+function pitchTexture(res){
+  const [c, g] = canvas2d(res, res), S = res / 60, X = x => (x + 30) * S, Z = z => (z + 30) * S;
+  for (let z = -30; z < 30; z += 2.5) { g.fillStyle = Math.floor((z + 100) / 2.5) % 2 ? '#93C68C' : '#A7D59E'; g.fillRect(0, Z(z), res, 2.5 * S + 1); }
+  const R = mulberry32(3);
+  for (let i = 0; i < res * res / 45; i++) { g.fillStyle = R() < .5 ? 'rgba(255,255,255,.09)' : 'rgba(40,90,40,.09)'; g.fillRect(R() * res, R() * res, 1.6, 1.6); }
+  g.strokeStyle = 'rgba(255,255,255,.88)'; g.lineWidth = .11 * S; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(X(-30), Z(-.6)); g.lineTo(X(30), Z(-.6)); g.stroke();          // halfway line
+  g.beginPath(); g.arc(X(0), Z(-.6), 3.3 * S, 0, Math.PI * 2); g.stroke();             // centre circle
+  g.fillStyle = 'rgba(255,255,255,.9)'; g.beginPath(); g.arc(X(0), Z(-.6), .14 * S, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.moveTo(X(-30), Z(-14)); g.lineTo(X(30), Z(-14)); g.stroke();         // far touchline
+  return texFrom(c, maxAniso);
+}
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ map: pitchTexture(TIERS[state.tier].ground), roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+/* ---------- grass blades: instanced, wind in the vertex shader, pressed under objects ---------- */
+const PRESS_N = 8;
+const grassMat = new THREE.ShaderMaterial({
+  side: THREE.DoubleSide,
+  uniforms: { uTime: { value: 0 }, uWind: { value: 1 }, uPress: { value: Array.from({ length: PRESS_N }, () => new THREE.Vector4()) } },
+  vertexShader: `
+    uniform float uTime; uniform float uWind; uniform vec4 uPress[${PRESS_N}];
+    attribute float aShade;
+    varying float vH; varying float vShade; varying float vStripe;
+    void main(){
+      vec4 base = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+      float squash = 0.0;
+      for (int i = 0; i < ${PRESS_N}; i++) {
+        vec4 p = uPress[i];
+        if (p.z > 0.0) { float d = distance(base.xz, p.xy); squash = max(squash, (1.0 - smoothstep(p.z * 0.55, p.z, d)) * p.w); }
+      }
+      vec3 pos = position;
+      float h = uv.y;
+      pos.y *= mix(1.0, 0.16, squash);
+      vec4 world = modelMatrix * instanceMatrix * vec4(pos, 1.0);
+      float w = sin(uTime * 1.7 + base.x * 0.55 + base.z * 0.35) * 0.6 + sin(uTime * 3.1 + base.x * 1.7 - base.z * 0.9) * 0.25;
+      float bend = h * h * uWind * (1.0 - squash);
+      world.x += w * bend * 0.16;
+      world.z += (w * 0.5 + 0.35) * bend * 0.10;
+      vH = h; vShade = aShade; vStripe = mod(floor((base.z + 100.0) / 2.5), 2.0);
+      gl_Position = projectionMatrix * viewMatrix * world;
+    }`,
+  fragmentShader: `
+    varying float vH; varying float vShade; varying float vStripe;
+    void main(){
+      vec3 baseA = vec3(0.47, 0.70, 0.44), tipA = vec3(0.72, 0.88, 0.64);
+      vec3 baseB = vec3(0.41, 0.63, 0.39), tipB = vec3(0.64, 0.82, 0.57);
+      vec3 c = mix(mix(baseA, baseB, vStripe), mix(tipA, tipB, vStripe), vH) * (0.9 + 0.2 * vShade);
+      gl_FragColor = vec4(pow(c, vec3(2.2)) * 1.05, 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`
+});
+let grass = null;
+function buildGrass(count){
+  if (grass) { scene.remove(grass); grass.geometry.dispose(); grass = null; }
+  if (!count) return;
+  const blade = new THREE.PlaneGeometry(0.07, 1, 1, 4); blade.translate(0, .5, 0);
+  const p = blade.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setX(i, p.getX(i) * (1 - p.getY(i) * .85));
+  const shade = new Float32Array(count);
+  const mesh = new THREE.InstancedMesh(blade, grassMat, count);
+  const R = mulberry32(7), m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(0, 0, 0, 'YXZ'), s = new THREE.Vector3(), v = new THREE.Vector3();
+  for (let i = 0; i < count; i++) {
+    v.set(-9 + R() * 18, 0, -7 + R() * 13.5);
+    e.set((R() - .5) * .5, R() * Math.PI * 2, (R() - .5) * .3); q.setFromEuler(e);
+    s.set(.8 + R() * .6, .2 + R() * .22, 1);
+    mesh.setMatrixAt(i, m.compose(v, q, s)); shade[i] = R();
+  }
+  blade.setAttribute('aShade', new THREE.InstancedBufferAttribute(shade, 1));
+  mesh.frustumCulled = false; scene.add(mesh); grass = mesh;
+}
+
+/* ---------- physics world ---------- */
+const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -28, 0) });
+world.solver.iterations = 12;
+const matGround = new CANNON.Material('ground'), matObj = new CANNON.Material('obj');
+world.addContactMaterial(new CANNON.ContactMaterial(matGround, matObj, { friction: .42, restitution: .28 }));
+world.addContactMaterial(new CANNON.ContactMaterial(matObj, matObj, { friction: .3, restitution: .3 }));
+{
+  const add = (pos, axis, ang) => { const b = new CANNON.Body({ mass: 0, material: matGround, shape: new CANNON.Plane() }); b.position.set(...pos); b.quaternion.setFromAxisAngle(new CANNON.Vec3(...axis), ang); world.addBody(b); };
+  add([0, 0, 0], [1, 0, 0], -Math.PI / 2);         // pitch
+  add([-4.2, 0, 0], [0, 1, 0], Math.PI / 2);       // invisible walls keep objects in view
+  add([4.2, 0, 0], [0, 1, 0], -Math.PI / 2);
+  add([0, 0, -3.6], [0, 1, 0], 0);
+  add([0, 0, 4.4], [0, 1, 0], Math.PI);
+}
+
+/* ---------- dice ---------- */
+// Rounded cube: each face is a grid whose outer rows wrap around a quarter-arc; UVs re-spread so the face art is not squeezed.
+function roundedCube(r = .13, s = 4){
+  const N = 2 * s + 1, g = new THREE.BoxGeometry(1, 1, 1, N, N, N);
+  const P = g.attributes.position, NN = g.attributes.normal, UV = g.attributes.uv;
+  const inner = .5 - r, ext = inner + r * Math.SQRT1_2, t = [0, 0, 0], d = [0, 0, 0], c = [0, 0, 0], f = [0, 0, 0];
+  const UVAX = [[2, 1], [0, 2], [0, 1]];
+  for (let i = 0; i < P.count; i++) {
+    const ox = Math.abs(NN.getX(i)), oy = Math.abs(NN.getY(i));
+    const F = ox > .5 ? 0 : oy > .5 ? 1 : 2;   // face axis from the original flat normal
+    t[0] = P.getX(i) * N; t[1] = P.getY(i) * N; t[2] = P.getZ(i) * N;
+    for (let k = 0; k < 3; k++) {
+      const a = Math.abs(t[k]);
+      if (a < .5) { c[k] = t[k] / .5 * inner; d[k] = 0; }
+      else { c[k] = Math.sign(t[k]) * inner; d[k] = Math.sign(t[k]) * Math.tan((a - .5) / s * Math.PI / 4); }
+    }
+    const len = Math.hypot(d[0], d[1], d[2]);
+    for (let k = 0; k < 3; k++) f[k] = c[k] + d[k] / len * r;
+    P.setXYZ(i, f[0], f[1], f[2]); NN.setXYZ(i, d[0] / len, d[1] / len, d[2] / len);
+    const [ua, va] = UVAX[F], u0 = UV.getX(i), v0 = UV.getY(i);
+    const su = Math.sign(u0 - .5) === Math.sign(t[ua]) ? 1 : -1, sv = Math.sign(v0 - .5) === Math.sign(t[va]) ? 1 : -1;
+    UV.setXY(i, .5 + .5 * su * f[ua] / ext, .5 + .5 * sv * f[va] / ext);
+  }
+  return g;
+}
+const dieGeo = roundedCube();
+const FACE_VALUES = [1, 6, 2, 5, 3, 4];   // +x −x +y −y +z −z (opposite faces sum to 7)
+const FACE_N = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]].map(a => new THREE.Vector3(...a));
+const DIE_TINT = { klasik: ['#F0E9FF', '#FFE6EE'], jeli: ['#B9A3F0', '#F5A1BC'], kayu: ['#EACFA6', '#D8A274'], angka: ['#DCCFF7', '#FBD0DC'] };
+const DIE_NAME = ['ungu', 'merah muda'];
+const DIE_SW = ['#B9A3F0', '#F5A1BC'];
+function dieFaceCanvas(v, style, tint, seed){
+  const [c, g] = canvas2d(256, 256);
+  g.fillStyle = tint; g.fillRect(0, 0, 256, 256);
+  if (style === 'kayu') {
+    const R = mulberry32(seed + v * 31);
+    for (let i = 0; i < 44; i++) {
+      g.strokeStyle = `rgba(118,68,30,${.05 + R() * .12})`; g.lineWidth = 1 + R() * 3;
+      const y0 = R() * 256, amp = 3 + R() * 7, ph = R() * 6; g.beginPath(); g.moveTo(0, y0);
+      for (let x = 0; x <= 256; x += 12) g.lineTo(x, y0 + Math.sin(x * .025 + ph) * amp); g.stroke();
+    }
+  }
+  if (style === 'jeli') { const gr = g.createRadialGradient(80, 70, 8, 128, 128, 190); gr.addColorStop(0, 'rgba(255,255,255,.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); }
+  if (style === 'angka') {
+    g.fillStyle = '#2E3440'; g.font = '800 150px "Plus Jakarta Sans", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(String(v), 128, 138); return c;
+  }
+  const pip = style === 'jeli' ? '#FFFFFF' : style === 'kayu' ? '#5A361C' : (v === 1 ? '#D9506A' : '#2E3440');
+  const L = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 3, 6, 2, 5, 8] };
+  for (const k of L[v]) {
+    const x = 64 + (k % 3) * 64, y = 64 + Math.floor(k / 3) * 64, rad = v === 1 ? 31 : 22;
+    g.fillStyle = 'rgba(255,255,255,.55)'; g.beginPath(); g.arc(x + 2, y + 2.5, rad, 0, Math.PI * 2); g.fill();   // rim highlight → looks drilled
+    g.fillStyle = pip; g.beginPath(); g.arc(x, y, rad, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.arc(x - 3, y - 3, rad * .75, 0, Math.PI * 2); g.fill();
+  }
+  return c;
+}
+function dieMaterials(style, idx){
+  const tint = DIE_TINT[style][idx];
+  return FACE_VALUES.map(v => {
+    const map = texFrom(dieFaceCanvas(v, style, tint, idx * 97));
+    if (style === 'jeli') return state.tier === 'tinggi'
+      ? new THREE.MeshPhysicalMaterial({ map, transmission: .6, thickness: .8, roughness: .12, ior: 1.35, clearcoat: 1, clearcoatRoughness: .08 })
+      : new THREE.MeshPhysicalMaterial({ map, transparent: true, opacity: .9, roughness: .15, clearcoat: 1, clearcoatRoughness: .08 });
+    if (style === 'kayu') return new THREE.MeshStandardMaterial({ map, roughness: .78 });
+    return new THREE.MeshPhysicalMaterial({ map, roughness: .32, clearcoat: .7, clearcoatRoughness: .2 });
+  });
+}
+const dice = [0, 1].map(i => {
+  const mesh = new THREE.Mesh(dieGeo, dieMaterials(state.dieStyle, i));
+  mesh.castShadow = true;
+  const body = new CANNON.Body({ mass: 1, material: matObj, shape: new CANNON.Box(new CANNON.Vec3(.5, .5, .5)), linearDamping: .08, angularDamping: .12 });
+  return { mesh, body, kind: 'die', i };
+});
+function restyleDice(){ dice.forEach(d => { d.mesh.material.forEach(m => { m.map.dispose(); m.dispose(); }); d.mesh.material = dieMaterials(state.dieStyle, d.i); }); }
+
+/* ---------- coins ---------- */
+const COIN = {
+  emas:     { a: '#FBE3A1', b: '#D2A845', edge: '#C49431', relief: 'rgba(110,72,8,', metal: .9,  rough: .3,  sym: 'star',  name: 'Emas Bintang' },
+  perak:    { a: '#F8F9FB', b: '#B6BFCB', edge: '#A3ADBA', relief: 'rgba(60,70,85,', metal: .9,  rough: .26, sym: 'leaf',  name: 'Perak Daun' },
+  perunggu: { a: '#F2B98B', b: '#AD6B3B', edge: '#9B5E35', relief: 'rgba(80,38,10,', metal: .85, rough: .36, sym: 'house', name: 'Perunggu' },
+  jumbo:    { a: '#DDF5E8', b: '#A7DCC2', edge: '#86C6AA', relief: 'rgba(46,52,64,', metal: .05, rough: .55, sym: 'letter', name: 'Jumbo A/G' }
+};
+function emboss(g, st, draw){
+  g.save(); g.translate(-3, -3); g.fillStyle = 'rgba(255,255,255,.55)'; g.strokeStyle = g.fillStyle; draw(); g.restore();
+  g.save(); g.translate(3, 3); g.fillStyle = st.relief + '.45)'; g.strokeStyle = g.fillStyle; draw(); g.restore();
+  g.save(); g.fillStyle = st.relief + '.75)'; g.strokeStyle = g.fillStyle; draw(); g.restore();
+}
+function coinFaceCanvas(styleKey, side){
+  const st = COIN[styleKey], [c, g] = canvas2d(512, 512);
+  const gr = g.createRadialGradient(200, 180, 30, 256, 256, 280); gr.addColorStop(0, st.a); gr.addColorStop(1, st.b);
+  g.fillStyle = gr; g.fillRect(0, 0, 512, 512);
+  g.lineWidth = 20; g.strokeStyle = st.edge; g.beginPath(); g.arc(256, 256, 244, 0, Math.PI * 2); g.stroke();
+  for (let i = 0; i < 60; i++) { const a = i / 60 * Math.PI * 2; g.fillStyle = st.relief + '.35)'; g.beginPath(); g.arc(256 + Math.cos(a) * 208, 256 + Math.sin(a) * 208, 4, 0, Math.PI * 2); g.fill(); }
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  const font = (w, px) => `${w} ${px}px "Plus Jakarta Sans", sans-serif`;
+  if (st.sym === 'letter') {
+    emboss(g, st, () => { g.font = font(800, 250); g.fillText(side, 256, 238); g.font = font(700, 42); g.fillText(side === 'A' ? 'ANGKA' : 'GAMBAR', 256, 380); });
+    return c;
+  }
+  if (side === 'A') {
+    emboss(g, st, () => { g.font = font(800, 230); g.fillText('1', 256, 236); g.font = font(700, 34); g.fillText('A', 256, 392); });
+  } else {
+    emboss(g, st, () => {
+      g.beginPath();
+      if (st.sym === 'star') { for (let i = 0; i < 10; i++) { const r = i % 2 ? 62 : 140, a = -Math.PI / 2 + i * Math.PI / 5; g.lineTo(256 + Math.cos(a) * r, 240 + Math.sin(a) * r); } g.closePath(); g.fill(); }
+      if (st.sym === 'leaf') { g.moveTo(256, 100); g.bezierCurveTo(370, 170, 360, 320, 256, 380); g.bezierCurveTo(152, 320, 142, 170, 256, 100); g.fill(); g.lineWidth = 8; g.strokeStyle = 'rgba(255,255,255,.5)'; g.beginPath(); g.moveTo(256, 130); g.lineTo(256, 360); g.stroke(); }
+      if (st.sym === 'house') { g.moveTo(130, 230); g.lineTo(256, 110); g.lineTo(382, 230); g.closePath(); g.fill(); g.fillRect(160, 230, 192, 130); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(232, 290, 48, 70); }
+      g.font = font(700, 34); g.fillStyle = st.relief + '.75)'; g.fillText('G', 256, 412);
+    });
+  }
+  return c;
+}
+function coinEdgeCanvas(styleKey){
+  const st = COIN[styleKey], [c, g] = canvas2d(512, 32);
+  g.fillStyle = st.edge; g.fillRect(0, 0, 512, 32);
+  if (styleKey !== 'jumbo') for (let x = 0; x < 512; x += 6) { g.fillStyle = st.relief + '.25)'; g.fillRect(x, 0, 2, 32); }
+  return c;
+}
+function coinMaterials(styleKey){
+  const st = COIN[styleKey];
+  const mk = c => new THREE.MeshStandardMaterial({ map: texFrom(c, maxAniso), metalness: st.metal, roughness: st.rough });
+  return [mk(coinEdgeCanvas(styleKey)), mk(coinFaceCanvas(styleKey, 'A')), mk(coinFaceCanvas(styleKey, 'G'))]; // side, top = Angka, bottom = Gambar
+}
+const coinGeo = new THREE.CylinderGeometry(.75, .75, .11, 56);
+const coins = [0, 1].map(i => {
+  const mesh = new THREE.Mesh(coinGeo, coinMaterials(state.coinStyle));
+  mesh.castShadow = true;
+  const body = new CANNON.Body({ mass: .4, material: matObj, shape: new CANNON.Cylinder(.75, .75, .11, 20), linearDamping: .08, angularDamping: .25 });
+  return { mesh, body, kind: 'coin', i };
+});
+function restyleCoins(){ coins.forEach(c => { c.mesh.material.forEach(m => { m.map.dispose(); m.dispose(); }); c.mesh.material = coinMaterials(state.coinStyle); }); }
+
+/* ---------- playing cards ---------- */
+const CARD_W = .9, CARD_H = 1.3;
+function cardBackCanvas(){
+  const [c, g] = canvas2d(256, 372);
+  roundRect(g, 0, 0, 256, 372, 22); g.fillStyle = '#FFFFFF'; g.fill();
+  roundRect(g, 12, 12, 232, 348, 14); g.fillStyle = '#C9B9F2'; g.fill();
+  g.save(); roundRect(g, 12, 12, 232, 348, 14); g.clip();
+  g.strokeStyle = 'rgba(255,255,255,.4)'; g.lineWidth = 3;
+  for (let i = -400; i < 400; i += 26) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 372, 372); g.stroke(); g.beginPath(); g.moveTo(i + 372, 0); g.lineTo(i, 372); g.stroke(); }
+  g.restore();
+  g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(128, 186, 36, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#9C86DB'; g.font = '800 34px "Plus Jakarta Sans", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('?', 128, 188);
+  return c;
+}
+function cardFaceCanvas(key){
+  const rank = key.slice(0, -1), s = SUIT[key.slice(-1)], col = s.red ? '#D04B66' : '#2E3440';
+  const [c, g] = canvas2d(256, 372);
+  roundRect(g, 0, 0, 256, 372, 22); g.fillStyle = '#FFFDF8'; g.fill(); g.lineWidth = 3; g.strokeStyle = '#E3DACB'; g.stroke();
+  g.fillStyle = col; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const corner = () => { g.font = '800 40px "Plus Jakarta Sans", sans-serif'; g.fillText(rank, 34, 40); g.font = '32px serif'; g.fillText(s.sym, 34, 80); };
+  corner(); g.save(); g.translate(256, 372); g.rotate(Math.PI); corner(); g.restore();
+  if ('JQK'.includes(rank) && rank.length === 1) {
+    g.fillStyle = s.red ? '#FBE0E6' : '#E6E9F2'; roundRect(g, 64, 96, 128, 180, 18); g.fill();
+    g.fillStyle = col; g.font = '800 92px "Plus Jakarta Sans", sans-serif'; g.fillText(rank, 128, 170);
+    g.font = '44px serif'; g.fillText(s.sym, 128, 238);
+  } else { g.font = (rank === 'A' ? 150 : 112) + 'px serif'; g.fillText(s.sym, 128, 192); }
+  return c;
+}
+const cardBackTex = texFrom(cardBackCanvas(), maxAniso);
+const cardPlane = new THREE.PlaneGeometry(CARD_W, CARD_H);
+function makeCard(key){
+  const grp = new THREE.Group();
+  const front = new THREE.Mesh(cardPlane, new THREE.MeshStandardMaterial({ map: texFrom(cardFaceCanvas(key), maxAniso), roughness: .6, alphaTest: .5 }));
+  front.rotation.x = -Math.PI / 2; front.position.y = .004;
+  const back = new THREE.Mesh(cardPlane, new THREE.MeshStandardMaterial({ map: cardBackTex, roughness: .6, alphaTest: .5 }));
+  back.rotation.x = Math.PI / 2; back.position.y = -.004;
+  front.castShadow = back.castShadow = true; grp.add(front, back); grp.userData.key = key;
+  return grp;
+}
+const cardsGroup = new THREE.Group(); scene.add(cardsGroup);
+const DECK_POS = new THREE.Vector3(-1.5, 0, -.1);
+const deck = new THREE.Group(); deck.position.copy(DECK_POS); cardsGroup.add(deck);
+{
+  const [c, g] = canvas2d(64, 64); g.fillStyle = '#F6F2EA'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#E0D7C8'; for (let y = 0; y < 64; y += 4) g.fillRect(0, y, 64, 1);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(CARD_W - .02, .24, CARD_H - .02), new THREE.MeshStandardMaterial({ map: texFrom(c, 1), roughness: .8 }));
+  body.position.y = .12; body.castShadow = true; deck.add(body);
+  const top = new THREE.Mesh(cardPlane, new THREE.MeshStandardMaterial({ map: cardBackTex, roughness: .6, alphaTest: .5 }));
+  top.rotation.x = -Math.PI / 2; top.position.y = .245; deck.add(top);
+}
+const drawnCards = [];
+const cardSlot = i => new THREE.Vector3(-.35 + i * .62, .075 + i * .004, .55);   // sits on top of the pressed grass
+
+/* ---------- spinner wheel ---------- */
+const spinnerGroup = new THREE.Group(); scene.add(spinnerGroup);
+const WHEEL_Y = 2.05, WHEEL_R = 1.6;
+const wheel = new THREE.Group(); wheel.position.set(0, WHEEL_Y, 0); spinnerGroup.add(wheel);
+{
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(WHEEL_R + .1, WHEEL_R + .1, .12, 72), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: .5 }));
+  plate.rotation.x = Math.PI / 2; plate.castShadow = true; wheel.add(plate);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(WHEEL_R + .1, .06, 12, 96), new THREE.MeshStandardMaterial({ color: 0xFFC9A3, roughness: .4 }));
+  rim.position.z = .02; wheel.add(rim);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(.17, .17, .26, 32), new THREE.MeshPhysicalMaterial({ color: 0xCDBEF3, roughness: .3, clearcoat: 1 }));
+  hub.rotation.x = Math.PI / 2; hub.position.z = .1; wheel.add(hub);
+  const metal = new THREE.MeshStandardMaterial({ color: 0xE8EBF0, metalness: .7, roughness: .35 });
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(.07, .08, WHEEL_Y, 16), metal); pole.position.set(0, WHEEL_Y / 2, -.16); pole.castShadow = true; spinnerGroup.add(pole);
+  const foot = new THREE.Mesh(new THREE.CylinderGeometry(.55, .65, .1, 32), metal); foot.position.set(0, .05, -.16); foot.castShadow = true; spinnerGroup.add(foot);
+  const ptr = new THREE.Mesh(new THREE.ConeGeometry(.17, .45, 24), new THREE.MeshPhysicalMaterial({ color: 0x2E3440, roughness: .3, clearcoat: .6 }));
+  ptr.rotation.z = Math.PI; ptr.position.set(0, WHEEL_Y + WHEEL_R + .3, .14); ptr.castShadow = true; spinnerGroup.add(ptr);
+}
+let sectorsGroup = null, sectorDefs = [];
+function buildSectors(){
+  if (sectorsGroup) { wheel.remove(sectorsGroup); sectorsGroup.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.map?.dispose(); o.material.dispose(); } }); }
+  sectorsGroup = new THREE.Group(); sectorsGroup.position.z = .066; wheel.add(sectorsGroup);
+  const defs = SPIN[state.spinKind], tot = defs.reduce((a, b) => a + b.w, 0);
+  let start = 0; sectorDefs = [];
+  for (const d of defs) {
+    const len = d.w / tot * Math.PI * 2;
+    const m = new THREE.Mesh(new THREE.CircleGeometry(WHEEL_R, 48, start + .012, len - .024), new THREE.MeshStandardMaterial({ color: d.col, roughness: .55 }));
+    sectorsGroup.add(m);
+    const [c, g] = canvas2d(256, 96); g.fillStyle = '#2E3440'; g.font = '800 46px "Plus Jakarta Sans", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(d.c, 128, 36); if (state.spinKind === 'beda') { g.font = '700 30px "JetBrains Mono", monospace'; const k = gcd(d.w, tot); g.fillText((d.w / k) + '/' + (tot / k), 128, 78); }
+    const lbl = new THREE.Mesh(new THREE.PlaneGeometry(.9, .34), new THREE.MeshBasicMaterial({ map: texFrom(c), transparent: true, toneMapped: false }));
+    const mid = start + len / 2, rr = d.w / tot < .2 ? 1.05 : .95;
+    lbl.position.set(Math.cos(mid) * rr, Math.sin(mid) * rr, .005); lbl.rotation.z = mid - Math.PI / 2;
+    if (d.w / tot < .2) lbl.scale.setScalar(.72);
+    sectorsGroup.add(lbl);
+    sectorDefs.push({ c: d.c, start, len }); start += len;
+  }
+}
+function sectorAtPointer(){
+  const a = (((Math.PI / 2 - wheel.rotation.z) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  return sectorDefs.find(s => a >= s.start && a < s.start + s.len)?.c ?? sectorDefs[sectorDefs.length - 1].c;
+}
+
+/* ---------- bag of balls ---------- */
+const bagGroup = new THREE.Group(); scene.add(bagGroup);
+const BAG_POS = new THREE.Vector3(-1.1, 0, 0);
+{
+  const [c, g] = canvas2d(128, 128); g.fillStyle = '#CDBEF3'; g.fillRect(0, 0, 128, 128);
+  g.strokeStyle = 'rgba(255,255,255,.22)'; for (let i = 0; i < 128; i += 4) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 128); g.stroke(); }
+  g.strokeStyle = 'rgba(80,60,140,.10)'; for (let i = 0; i < 128; i += 4) { g.beginPath(); g.moveTo(0, i); g.lineTo(128, i); g.stroke(); }
+  const t = texFrom(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 3);
+  const pts = [[0, 0], [.7, .02], [.95, .25], [1.02, .6], [.92, .95], [.62, 1.2], [.42, 1.34], [.5, 1.48], [.58, 1.53]].map(p => new THREE.Vector2(p[0], p[1]));
+  const bag = new THREE.Mesh(new THREE.LatheGeometry(pts, 40), new THREE.MeshStandardMaterial({ map: t, roughness: .95, side: THREE.DoubleSide }));
+  bag.castShadow = true; bag.position.copy(BAG_POS); bagGroup.add(bag);
+  const tie = new THREE.Mesh(new THREE.TorusGeometry(.44, .045, 10, 40), new THREE.MeshStandardMaterial({ color: 0xFFB98E, roughness: .6 }));
+  tie.rotation.x = Math.PI / 2; tie.position.set(BAG_POS.x, 1.34, BAG_POS.z); bagGroup.add(tie);
+  const hole = new THREE.Mesh(new THREE.CircleGeometry(.47, 32), new THREE.MeshBasicMaterial({ color: 0x5E4E8C }));
+  hole.rotation.x = -Math.PI / 2; hole.position.set(BAG_POS.x, 1.45, BAG_POS.z); bagGroup.add(hole);
+  [['merah', -.15, .05], ['kuning', .13, -.08], ['hijau', .02, .16]].forEach(([col, x, z]) => {
+    const b = new THREE.Mesh(new THREE.SphereGeometry(.17, 24, 16), ballMat(col)); b.position.set(BAG_POS.x + x, 1.47, BAG_POS.z + z); bagGroup.add(b);
+  });
+}
+function ballMat(col){ return new THREE.MeshPhysicalMaterial({ color: BALL_COL[col], roughness: .25, clearcoat: 1, clearcoatRoughness: .1 }); }
+const ballGeo = new THREE.SphereGeometry(.18, 28, 20);
+const trayBalls = [];
+const traySlot = i => new THREE.Vector3(.35 + i * .46, .18, .95);
+
+/* ---------- camera presets & orbit ---------- */
+const PRESETS = {
+  coin:    { pos: [0, 6.6, 8.2],  target: [0, .4, .3] },
+  dice:    { pos: [0, 7.2, 8.6],  target: [0, .3, .2] },
+  cards:   { pos: [0, 6.2, 4.9],  target: [.25, 0, .25] },
+  spinner: { pos: [0, 2.5, 6.6],  target: [0, 1.95, 0] },
+  bag:     { pos: [.4, 3.5, 6.3], target: [.55, .8, .1] }
+};
+const cam = { pos: new THREE.Vector3(), target: new THREE.Vector3(), fromPos: new THREE.Vector3(), fromTarget: new THREE.Vector3(), toPos: new THREE.Vector3(), toTarget: new THREE.Vector3(), k: 1, az: 0, dist: 1 };
+function setCamPreset(mode, instant){
+  const p = PRESETS[mode];
+  cam.fromPos.copy(cam.pos); cam.fromTarget.copy(cam.target);
+  cam.toPos.set(...p.pos); cam.toTarget.set(...p.target); cam.az = 0;
+  cam.k = instant ? 1 : 0;
+  if (instant) { cam.pos.copy(cam.toPos); cam.target.copy(cam.toTarget); }
+}
+const _v = new THREE.Vector3();
+function applyCamera(){
+  _v.copy(cam.pos).sub(cam.target).multiplyScalar(cam.dist).applyAxisAngle(THREE.Object3D.DEFAULT_UP, cam.az);
+  camera.position.copy(cam.target).add(_v); camera.lookAt(cam.target);
+}
+let drag = null, lastTap = 0;
+canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, az: cam.az }; canvas.setPointerCapture(e.pointerId); const now = performance.now(); if (now - lastTap < 300) { cam.az = 0; kick(); } lastTap = now; });
+canvas.addEventListener('pointermove', e => { if (!drag) return; cam.az = THREE.MathUtils.clamp(drag.az - (e.clientX - drag.x) * .006, -.6, .6); kick(); });
+const endDrag = () => { drag = null; };
+canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
+
+/* ---------- tweens, tags, render loop ---------- */
+const tweens = [];
+function tween(dur, fn, ease = easeInOut){ return new Promise(res => { if (state.reduced) { fn(1); res(); return; } tweens.push({ t: 0, dur, fn, ease, res }); kick(); }); }
+let needsRender = true; const kick = () => { needsRender = true; };
+let tags = [];
+function setTags(list){ const box = $('#tags'); box.innerHTML = ''; tags = list.map(t => { const el = document.createElement('div'); el.className = 'tag' + (t.in ? ' in' : ''); el.innerHTML = t.html; box.appendChild(el); return { ...t, el }; }); kick(); }
+const _p = new THREE.Vector3();
+function updateTags(){
+  const w = stageEl.clientWidth, h = stageEl.clientHeight;
+  for (const t of tags) { t.obj.getWorldPosition(_p); _p.y += t.dy; _p.project(camera); t.el.style.left = ((_p.x * .5 + .5) * w) + 'px'; t.el.style.top = ((-_p.y * .5 + .5) * h) + 'px'; }
+}
+const pressU = grassMat.uniforms.uPress.value;
+function updatePresses(){
+  let i = 0; const put = (x, z, r, s = 1) => { if (i < PRESS_N) pressU[i++].set(x, z, r, s); };
+  if (state.mode === 'dice') dice.slice(0, state.dieCount).forEach(d => { if (d.mesh.position.y < 1.2) put(d.mesh.position.x, d.mesh.position.z, .95); });
+  if (state.mode === 'coin') coins.slice(0, state.coinCount).forEach(c => { if (c.mesh.position.y < 1) put(c.mesh.position.x, c.mesh.position.z, 1.05); });
+  if (state.mode === 'cards') { put(DECK_POS.x, DECK_POS.z, 1.05); put(.9, .55, 2.0); put(-.1, .55, 1.4); }
+  if (state.mode === 'spinner') put(0, -.16, 1.0);
+  if (state.mode === 'bag') { put(BAG_POS.x, BAG_POS.z, 1.35); put(1.5, .95, 1.8); put(.5, .95, 1.2); }
+  for (; i < PRESS_N; i++) pressU[i].set(0, 0, 0, 0);
+}
+
+let sim = null;   // active physics throw
+let last = performance.now(), fpsAcc = { t: 0, n: 0, checked: false };
+function frame(now){
+  requestAnimationFrame(frame);
+  if (document.hidden) { last = now; return; }
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  let active = false;
+  if (sim) { active = true; stepSim(dt); }
+  for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t += dt; const k = Math.min(1, tw.t / tw.dur); tw.fn(tw.ease(k)); if (k >= 1) { tweens.splice(i, 1); tw.res(); } active = true; }
+  if (cam.k < 1) { cam.k = Math.min(1, cam.k + dt / .7); const e = easeInOut(cam.k); cam.pos.lerpVectors(cam.fromPos, cam.toPos, e); cam.target.lerpVectors(cam.fromTarget, cam.toTarget, e); active = true; }
+  const wind = !state.focus && grass;
+  if (!active && !wind && !needsRender && !drag) return;
+  if (wind) grassMat.uniforms.uTime.value += dt;
+  applyCamera(); updatePresses(); updateTags();
+  renderer.render(scene, camera); needsRender = false;
+  // FPS watchdog: step quality down once if the device struggles (prd §7: ≥30 fps)
+  if (!fpsAcc.checked && state.qualityPref === 'auto') {
+    fpsAcc.t += dt; fpsAcc.n++;
+    if (fpsAcc.t > 4) { fpsAcc.checked = true; const fps = fpsAcc.n / fpsAcc.t; if (fps < 28 && state.tier !== 'hemat') { applyTier(state.tier === 'tinggi' ? 'sedang' : 'hemat'); toast('Grafik diturunkan agar tetap lancar'); } }
+  }
+}
+
+/* ---------- physical throws (dice & coins): the result is read from the landed object ---------- */
+const UP = new THREE.Vector3(0, 1, 0), _q = new THREE.Quaternion(), _n = new THREE.Vector3();
+function readDie(d){ _q.set(d.body.quaternion.x, d.body.quaternion.y, d.body.quaternion.z, d.body.quaternion.w); let best = -2, val = 1; FACE_N.forEach((n, i) => { const y = _n.copy(n).applyQuaternion(_q).y; if (y > best) { best = y; val = FACE_VALUES[i]; } }); return { val, flat: best > .9 }; }
+function readCoin(c){ _q.set(c.body.quaternion.x, c.body.quaternion.y, c.body.quaternion.z, c.body.quaternion.w); const y = _n.copy(UP).applyQuaternion(_q).y; return { val: y > 0 ? 'A' : 'G', flat: Math.abs(y) > .85 }; }
+function syncMesh(o){ o.mesh.position.copy(o.body.position); o.mesh.quaternion.copy(o.body.quaternion); }
+function activeThrowables(){ return state.mode === 'dice' ? dice.slice(0, state.dieCount) : coins.slice(0, state.coinCount); }
+function stepSim(dt){
+  world.step(1 / 90, dt, 6);
+  sim.objs.forEach(syncMesh); sim.time += dt;
+  const still = sim.objs.every(o => o.body.velocity.length() < .07 && o.body.angularVelocity.length() < .14);
+  sim.still = still ? sim.still + dt : 0;
+  if (sim.still > .35 || sim.time > 6) {
+    const reads = sim.objs.map(o => o.kind === 'die' ? readDie(o) : readCoin(o));
+    const tilted = sim.objs.filter((o, i) => !reads[i].flat);
+    if (tilted.length && sim.nudges < 4) {   // leaning on a wall or another object → small nudge, like a real re-roll
+      sim.nudges++; sim.still = 0;
+      tilted.forEach(o => { o.body.velocity.set((rand() - .5) * 1.5, 3.5, (rand() - .5) * 1.5); o.body.angularVelocity.set((rand() - .5) * 12, (rand() - .5) * 12, (rand() - .5) * 12); });
+      return;
+    }
+    const done = sim.resolve; sim = null; done(reads.map(r => r.val));
+  }
+}
+function throwPhysical(){
+  const objs = activeThrowables();
+  objs.forEach(o => { if (!world.bodies.includes(o.body)) world.addBody(o.body); });
+  if (state.reduced) return Promise.resolve(placeDirect(objs));
+  const e = new CANNON.Quaternion();
+  objs.forEach((o, i) => {
+    const b = o.body;
+    if (o.kind === 'die') {
+      b.position.set(-3.1 + i * 1.15, 2.2 + rand() * .6, 3.3 + rand() * .4);
+      e.setFromEuler(rand() * 6.28, rand() * 6.28, rand() * 6.28); b.quaternion.copy(e);
+      b.velocity.set(4.3 + rand() * 2.4, 1.5 + rand() * 2, -(6.4 + rand() * 2.4));
+      b.angularVelocity.set((rand() - .5) * 30, (rand() - .5) * 30, (rand() - .5) * 30);
+    } else {
+      const x = objs.length === 1 ? 0 : (i ? .85 : -.85);
+      b.position.set(x, .9, 2.6);
+      e.setFromEuler(0, rand() * 6.28, 0); b.quaternion.copy(e);
+      b.velocity.set((rand() - .5) * 1.4, 10.5 + rand() * 2.5, -(2.3 + rand() * 1.2));
+      const spin = (rand() < .5 ? -1 : 1) * (28 + rand() * 14);
+      b.angularVelocity.set(spin, (rand() - .5) * 4, (rand() - .5) * 6);   // flip + wobble
+    }
+    b.wakeUp(); syncMesh(o);
+  });
+  return new Promise(res => { sim = { objs, time: 0, still: 0, nudges: 0, resolve: res }; kick(); });
+}
+// Reduced motion: outcome from crypto RNG, object placed showing that face
+function placeDirect(objs){
+  return objs.map((o, i) => {
+    const b = o.body, yaw = new THREE.Quaternion().setFromAxisAngle(UP, rand() * 6.28);
+    const x = objs.length === 1 ? 0 : (i ? 1 : -1);
+    if (o.kind === 'die') {
+      const fi = randInt(6), q = new THREE.Quaternion().setFromUnitVectors(FACE_N[fi], UP).premultiply(yaw);
+      b.position.set(x, .5, .3); b.quaternion.set(q.x, q.y, q.z, q.w); b.velocity.setZero(); b.angularVelocity.setZero(); syncMesh(o); kick();
+      return FACE_VALUES[fi];
+    }
+    const g = randInt(2) === 1, q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), g ? Math.PI : 0).premultiply(yaw);
+    b.position.set(x, .056, .3); b.quaternion.set(q.x, q.y, q.z, q.w); b.velocity.setZero(); b.angularVelocity.setZero(); syncMesh(o); kick();
+    return g ? 'G' : 'A';
+  });
+}
+
+/* ---------- animated draws: card, spinner, bag ---------- */
+async function drawCardAnim(){
+  const key = space().outcomes[randInt(52)];
+  await tween(.22, k => { deck.rotation.y = Math.sin(k * Math.PI * 4) * .06 * (1 - k); }, x => x);   // quick shuffle wiggle
+  if (drawnCards.length >= 5) {
+    const old = drawnCards.shift(); cardsGroup.remove(old); old.children[0].material.map.dispose(); old.children[0].material.dispose(); old.children[1].material.dispose();
+    const from = drawnCards.map(c => c.position.clone());
+    await tween(.2, k => drawnCards.forEach((c, i) => c.position.lerpVectors(from[i], cardSlot(i), k)));
+  }
+  const card = makeCard(key), slot = cardSlot(drawnCards.length), start = new THREE.Vector3(DECK_POS.x, .26, DECK_POS.z), fan = (rand() - .5) * .16;
+  card.rotation.z = Math.PI; card.position.copy(start); cardsGroup.add(card); drawnCards.push(card);
+  await tween(.95, k => { card.position.lerpVectors(start, slot, k); card.position.y += Math.sin(k * Math.PI) * 1.1; card.rotation.z = Math.PI * (1 - easeInOut(Math.min(1, k * 1.25))); card.rotation.y = fan * k; }, easeOut);
+  return { key, obj: card };
+}
+async function spinAnim(){
+  const target = wheel.rotation.z + Math.PI * 2 * (5 + randInt(3)) + rand() * Math.PI * 2;   // uniform final angle → probability ∝ sector size
+  const from = wheel.rotation.z;
+  if (state.reduced) wheel.rotation.z = target;
+  else await tween(3.4, k => { wheel.rotation.z = from + (target - from) * k; }, k => 1 - Math.pow(1 - k, 4));
+  wheel.rotation.z %= Math.PI * 2; kick();
+  return sectorAtPointer();
+}
+async function drawBallAnim(){
+  const key = BAG[randInt(BAG.length)], col = ballColor(key);
+  if (trayBalls.length >= 6) {
+    const old = trayBalls.shift(); bagGroup.remove(old); old.material.dispose();
+    const from = trayBalls.map(b => b.position.clone());
+    await tween(.2, k => trayBalls.forEach((b, i) => b.position.lerpVectors(from[i], traySlot(i), k)));
+  }
+  const ball = new THREE.Mesh(ballGeo, ballMat(col)); ball.castShadow = true;
+  const start = new THREE.Vector3(BAG_POS.x, 1.3, BAG_POS.z), up = new THREE.Vector3(BAG_POS.x, 2.3, BAG_POS.z), slot = traySlot(trayBalls.length);
+  ball.position.copy(start); bagGroup.add(ball); trayBalls.push(ball);
+  await tween(.45, k => ball.position.lerpVectors(start, up, k), easeOut);
+  await tween(.6, k => { ball.position.lerpVectors(up, slot, k); ball.position.y += Math.sin(k * Math.PI) * .5; });
+  await tween(.3, k => { ball.position.y = slot.y + Math.abs(Math.sin(k * Math.PI * 2)) * .18 * (1 - k); }, x => x);
+  return { key, obj: ball };
+}
+
+/* ================= UI ================= */
+const MODES = [
+  { id: 'coin', label: 'Koin', dot: '#E9C46A', act: 'Lempar koin' },
+  { id: 'dice', label: 'Dadu', dot: '#B9A3F0', act: 'Lempar dadu' },
+  { id: 'cards', label: 'Kartu', dot: '#F4A3A8', act: 'Ambil kartu' },
+  { id: 'spinner', label: 'Roda', dot: '#A9CFF2', act: 'Putar roda' },
+  { id: 'bag', label: 'Kantong', dot: '#A8DDB5', act: 'Ambil bola' }
+];
+const CONTEXT = {
+  coin: ['Kenalan dengan koin', 'Koin punya dua sisi: <b style="display:inline">Angka (A)</b> dan <b style="display:inline">Gambar (G)</b>. Pada koin yang seimbang, kedua sisi sama-sama mungkin muncul. Dua koin: AG dan GA dihitung sebagai hasil yang berbeda.'],
+  dice: ['Kenalan dengan dadu', 'Dadu punya 6 sisi bermata 1 sampai 6. Dua dadu dibedakan warnanya: ungu = dadu 1, merah muda = dadu 2. Jadi (1,6) dan (6,1) adalah dua hasil yang berbeda, makanya ada 6 × 6 = 36 kemungkinan.'],
+  cards: ['Kenalan dengan kartu remi', 'Satu set kartu remi ada 52 kartu. Ada 4 jenis: sekop ♠︎ dan keriting ♣︎ (hitam), hati ♥︎ dan wajik ♦︎ (merah). Tiap jenis ada 13 kartu: As, 2–10, J, Q, K. Kartu bergambar = J, Q, K. Di lab ini, kartu dikembalikan dan dikocok lagi setiap kali diambil.'],
+  spinner: ['Kenalan dengan roda putar', 'Jarum menunjuk ke bagian roda tempat roda berhenti. Kalau bagiannya sama besar, tiap warna sama kemungkinannya. Kalau tidak sama besar, bagian yang lebih luas lebih sering terpilih.'],
+  bag: ['Kenalan dengan kantong bola', 'Di dalam kantong ada 10 bola: 5 merah, 3 kuning, 2 hijau. Bola diambil tanpa melihat, lalu dikembalikan lagi ke kantong sebelum pengambilan berikutnya.']
+};
+function variantDefs(){
+  switch (state.mode) {
+    case 'coin': return [
+      { key: 'coinCount', opts: [[1, '1 koin'], [2, '2 koin']] },
+      { key: 'coinStyle', opts: Object.entries(COIN).map(([k, v]) => [k, v.name]) }];
+    case 'dice': return [
+      { key: 'dieCount', opts: [[1, '1 dadu'], [2, '2 dadu']] },
+      { key: 'dieStyle', opts: [['klasik', 'Klasik'], ['jeli', 'Jeli'], ['kayu', 'Kayu'], ['angka', 'Angka']] }];
+    case 'spinner': return [{ key: 'spinKind', opts: [['sama', 'Bagian sama besar'], ['beda', 'Bagian tidak sama']] }];
+    default: return [];
+  }
+}
+function renderTabs(){
+  $('#tabs').innerHTML = MODES.map(m => `<button class="tab" role="tab" aria-selected="${m.id === state.mode}" data-mode="${m.id}"><span class="dot" style="background:${m.dot}"></span>${m.label}</button>`).join('');
+}
+function renderVariants(){
+  const defs = variantDefs();
+  $('#variants').innerHTML = defs.map(d => d.opts.map(([v, l]) => `<button class="chip opt" data-key="${d.key}" data-val="${v}" aria-pressed="${state[d.key] === v}">${l}</button>`).join('')).join('<span style="width:6px"></span>');
+  $('#variants').hidden = !defs.length;
+}
+function fracHTML(a, b, clsA = '', clsB = ''){ return `<span class="frac"><span class="${clsA}">${a}</span><span class="${clsB}">${b}</span></span>`; }
+function renderPanel(){
+  const evs = events(), ev = curEvent(), th = theory(), sp = space();
+  $('#btnMain').textContent = MODES.find(m => m.id === state.mode).act;
+  $('#events').innerHTML = evs.map((e, i) => `<button class="chip" data-ev="${i}" aria-pressed="${e === ev}">${e.label}</button>`).join('');
+
+  // math card: event, formula, empirical stats — all on one card (D1)
+  const N = state.outcomes.length, k = state.outcomes.filter(ev.test).length, g = gcd(th.nA, th.nS) || 1;
+  const listA = !th.area && sp.outcomes.length <= 6 ? ` → A = {${sp.outcomes.filter(ev.test).map(fmtKey).join(', ')}}` : '';
+  let formula;
+  if (th.area) formula = `<span>P(A)</span><span class="eq">=</span>${fracHTML('luas bagian A', 'luas roda', 'na', 'ns').replace('class="frac"', 'class="frac txt"')}<span class="eq">=</span>${fracHTML(th.nA, th.nS, 'na', 'ns')}${g > 1 ? `<span class="eq">=</span>${fracHTML(th.nA / g, th.nS / g)}` : ''}`;
+  else formula = `<span>P(A)</span><span class="eq">=</span>${fracHTML('n(A)', 'n(S)', 'na', 'ns')}<span class="eq">=</span>${fracHTML(th.nA, th.nS, 'na', 'ns')}${g > 1 ? `<span class="eq">=</span>${fracHTML(th.nA / g, th.nS / g)}` : ''}`;
+  const pT = th.nA / th.nS, pE = N ? k / N : null;
+  $('#mathCard').innerHTML = `
+    <p class="event-desc">Kejadian A: ${ev.desc}${listA}</p>
+    <div class="formula" aria-label="Rumus peluang">${formula}</div>
+    ${th.area ? '<p class="note">Bagian roda tidak sama besar, jadi tiap warna tidak sama kemungkinannya. Peluangnya dibandingkan dengan luas bagian, bukan banyak warna.</p>' : `<p class="note"><span class="na-t">n(A) = ${th.nA}</span> hasil yang cocok dengan kejadian A, dari <span class="ns-t">n(S) = ${th.nS}</span> semua hasil yang mungkin.</p>`}
+    <div class="stats">
+      <div class="stat"><small>Percobaan</small><b>${N}</b></div>
+      <div class="stat"><small>A muncul</small><b class="na-t">${k}</b></div>
+      <div class="stat"><small>Frekuensi relatif</small><b>${N ? `${k}/${N}` : '–'}</b></div>
+    </div>
+    <p class="note">${N ? `Hasil percobaan: ${k}/${N} ≈ <b>${dec(pE)}</b>. Peluang teoretis: ${th.nA / g}/${th.nS / g} ≈ <b>${dec(pT)}</b>.` : 'Belum ada percobaan. Coba lempar dulu, lalu bandingkan hasilnya dengan peluang teoretis.'}</p>`;
+
+  // meter 0..1 (F06 cek kewajaran)
+  $('#meter').innerHTML = `<div class="track"></div>
+    <span class="tick" style="left:0%">0 mustahil</span><span class="tick" style="left:50%">½</span><span class="tick" style="left:100%">1 pasti</span>
+    <span class="mk t" style="left:${pT * 100}%" title="teoretis"></span>${pE != null ? `<span class="mk e" style="left:${pE * 100}%" title="percobaan"></span>` : ''}`;
+  $('#chartNote').textContent = N < 30
+    ? 'Dengan sedikit percobaan, hasilnya bisa jauh dari peluang teoretis. Coba 100× atau 1000×.'
+    : `Setelah ${N} percobaan, selisihnya ${dec(Math.abs(pE - pT))}. Makin banyak percobaan, garis oranye biasanya makin dekat ke garis putus-putus.`;
+  drawChart(ev, pT);
+  renderSampleSpace(ev);
+  const lastK = state.outcomes.slice(-14);
+  $('#hist').innerHTML = lastK.length ? lastK.map(x => `<span class="${ev.test(x) ? 'in' : ''}">${fmtKey(x)}</span>`).join('') : '<span>belum ada</span>';
+  const [ct, cb] = CONTEXT[state.mode]; $('#context').innerHTML = `<b>${ct}</b>${cb}`;
+}
+function renderSampleSpace(ev){
+  const sp = space(), lastO = state.outcomes[state.outcomes.length - 1];
+  const n = sp.weights ? sp.outcomes.length : sp.outcomes.length;
+  $('#ssLabel').innerHTML = `Ruang sampel S · <span class="ns-t">n(S) = ${sp.weights ? sp.weights.reduce((a, b) => a + b, 0) + ' bagian' : n}</span> · kotak oranye = kejadian A`;
+  let html = '';
+  if (state.mode === 'dice' && state.dieCount === 2) {
+    html = '<div class="grid-wrap"><table class="grid"><tr><th></th>' + [1,2,3,4,5,6].map(b => `<th style="color:#B35576">${b}</th>`).join('') + '</tr>';
+    for (let a = 1; a <= 6; a++) { html += `<tr><th style="color:#6A55B0">${a}</th>`; for (let b = 1; b <= 6; b++) { const k = a + '-' + b; html += `<td class="${ev.test(k) ? 'in' : ''} ${k === lastO ? 'last' : ''}">${a},${b}</td>`; } html += '</tr>'; }
+    html += '</table></div><p class="note">Baris = dadu ungu, kolom = dadu merah muda.</p>';
+  } else if (state.mode === 'cards') {
+    html = '<div class="grid-wrap"><table class="grid cards"><tr><th></th>' + RANKS.map(r => `<th>${r}</th>`).join('') + '</tr>';
+    for (const s of SUITS) { html += `<tr><th style="color:${s.red ? '#D04B66' : '#2E3440'}">${s.sym}</th>`; for (const r of RANKS) { const k = r + s.k; html += `<td class="${ev.test(k) ? 'in' : ''} ${k === lastO ? 'last' : ''}"></td>`; } html += '</tr>'; }
+    html += '</table></div>';
+  } else if (state.mode === 'bag') {
+    html = '<div class="ss">' + BAG.map(k => `<span class="ballcell ${ev.test(k) ? 'in' : ''}"><span class="ball" style="background:${BALL_COL[ballColor(k)]}"></span></span>`).join('') + '</div>';
+  } else if (state.mode === 'spinner') {
+    const defs = SPIN[state.spinKind], tot = defs.reduce((a, b) => a + b.w, 0);
+    html = '<div class="ss">' + defs.map(d => { const g = gcd(d.w, tot); return `<span class="cell ${ev.test(d.c) ? 'in' : ''} ${d.c === lastO ? 'last' : ''}" style="gap:6px;display:flex"><span style="width:12px;height:12px;border-radius:3px;background:${d.col}"></span>${d.c}${sp.weights ? ` · ${d.w / g}/${tot / g}` : ''}</span>`; }).join('') + '</div>';
+  } else {
+    html = '<div class="ss">' + sp.outcomes.map(k => `<span class="cell ${ev.test(k) ? 'in' : ''} ${k === lastO ? 'last' : ''}">${fmtKey(k)}</span>`).join('') + '</div>';
+  }
+  $('#ss').innerHTML = html;
+}
+function drawChart(ev, pT){
+  const c = $('#chart'), dpr = Math.min(2, devicePixelRatio || 1), w = c.clientWidth, h = c.clientHeight;
+  if (!w) return;
+  c.width = w * dpr; c.height = h * dpr; const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue(n).trim();
+  const L = 30, R = 8, T = 8, B = 20, W = w - L - R, H = h - T - B, y = p => T + (1 - p) * H;
+  g.font = '11px ' + col('--f-num'); g.fillStyle = col('--ink-soft'); g.strokeStyle = col('--line'); g.lineWidth = 1; g.textAlign = 'right'; g.textBaseline = 'middle';
+  for (const p of [0, .25, .5, .75, 1]) { g.beginPath(); g.moveTo(L, y(p)); g.lineTo(L + W, y(p)); g.stroke(); g.fillText(p === .5 ? '0,5' : p === .25 ? '0,25' : p === .75 ? '0,75' : String(p), L - 5, y(p)); }
+  const N = state.outcomes.length;
+  g.textAlign = 'left'; g.textBaseline = 'top'; g.fillText('percobaan ke-1', L, T + H + 5); g.textAlign = 'right'; g.fillText(N ? `ke-${N}` : '', L + W, T + H + 5);
+  g.setLineDash([6, 5]); g.strokeStyle = col('--ns'); g.lineWidth = 2; g.beginPath(); g.moveTo(L, y(pT)); g.lineTo(L + W, y(pT)); g.stroke(); g.setLineDash([]);
+  if (!N) return;
+  const step = Math.max(1, Math.floor(N / 500)); let cnt = 0;
+  g.strokeStyle = col('--na'); g.lineWidth = 2.5; g.lineJoin = 'round'; g.beginPath();
+  for (let i = 0; i < N; i++) { if (ev.test(state.outcomes[i])) cnt++; if (i % step === 0 || i === N - 1) { const x = L + (N === 1 ? W : i / (N - 1) * W), yy = y(cnt / (i + 1)); i === 0 ? g.moveTo(x, yy) : g.lineTo(x, yy); } }
+  g.stroke();
+  const ex = L + W, ey = y(cnt / N); g.fillStyle = col('--na'); g.beginPath(); g.arc(ex, ey, 4, 0, Math.PI * 2); g.fill();
+}
+
+/* ---------- mode switching ---------- */
+function showMode(){
+  const m = state.mode;
+  dice.forEach((d, i) => { const on = m === 'dice' && i < state.dieCount; if (on && !d.mesh.parent) scene.add(d.mesh); if (!on && d.mesh.parent) scene.remove(d.mesh); if (!on && world.bodies.includes(d.body)) world.removeBody(d.body); });
+  coins.forEach((c, i) => { const on = m === 'coin' && i < state.coinCount; if (on && !c.mesh.parent) scene.add(c.mesh); if (!on && c.mesh.parent) scene.remove(c.mesh); if (!on && world.bodies.includes(c.body)) world.removeBody(c.body); });
+  cardsGroup.visible = m === 'cards'; spinnerGroup.visible = m === 'spinner'; bagGroup.visible = m === 'bag';
+  // resting pose before the first throw
+  if (m === 'dice') dice.slice(0, state.dieCount).forEach((d, i) => { d.body.position.set(state.dieCount === 1 ? 0 : (i ? .9 : -.9), .5, .6); d.body.quaternion.setFromEuler(0, i ? .5 : -.3, 0); d.body.velocity.setZero(); d.body.angularVelocity.setZero(); syncMesh(d); });
+  if (m === 'coin') coins.slice(0, state.coinCount).forEach((c, i) => { c.body.position.set(state.coinCount === 1 ? 0 : (i ? 1 : -1), .056, .6); c.body.quaternion.setFromEuler(0, 0, 0); c.body.velocity.setZero(); c.body.angularVelocity.setZero(); syncMesh(c); });
+  setTags([]); kick();
+}
+function resetStats(){ state.outcomes = []; renderPanel(); }
+function setMode(m){
+  if (state.busy || m === state.mode) return;
+  state.mode = m; state.eventIdx = 0; store.set('mode', m);
+  renderTabs(); renderVariants(); showMode(); setCamPreset(m); resetStats();
+}
+
+/* ---------- actions ---------- */
+function setBusy(b){ state.busy = b; document.querySelectorAll('#actions .btn, #variants .chip, .tab').forEach(x => x.disabled = b); }
+async function doMain(){
+  if (state.busy) return; setBusy(true); setTags([]);
+  try {
+    let keys = [], tagList = [];
+    if (state.mode === 'dice' || state.mode === 'coin') {
+      const vals = await throwPhysical(), objs = activeThrowables();
+      const key = state.mode === 'dice' ? vals.join('-') : vals.join('');
+      keys.push(key);
+      const evIn = curEvent().test(key);
+      tagList = objs.map((o, i) => ({ obj: o.mesh, dy: o.kind === 'die' ? .85 : .6, in: evIn, html: o.kind === 'die' && state.dieCount === 2 ? `<span class="sw" style="background:${DIE_SW[i]}"></span>${vals[i]}` : String(vals[i]) }));
+    } else if (state.mode === 'cards') {
+      const r = await drawCardAnim(); keys.push(r.key); tagList = [{ obj: r.obj, dy: .35, in: curEvent().test(r.key), html: fmtKey(r.key) }];
+    } else if (state.mode === 'spinner') {
+      const c = await spinAnim(); keys.push(c); tagList = [{ obj: wheel, dy: WHEEL_R + .85, in: curEvent().test(c), html: c }];
+    } else {
+      const r = await drawBallAnim(); keys.push(r.key); tagList = [{ obj: r.obj, dy: .32, in: curEvent().test(r.key), html: ballColor(r.key) }];
+    }
+    state.outcomes.push(...keys); vibrate(12); setTags(tagList); renderPanel();
+  } finally { setBusy(false); }
+}
+function doFast(n){
+  if (state.busy) return;
+  const room = 20000 - state.outcomes.length; if (room <= 0) { toast('Sudah 20.000 percobaan. Tekan Ulang untuk mulai lagi.'); return; }
+  for (let i = 0; i < Math.min(n, room); i++) state.outcomes.push(sample());
+  setTags([]); renderPanel();
+}
+
+/* ---------- quality ---------- */
+function applyTier(t){
+  state.tier = t; const T = TIERS[t];
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, T.dpr));
+  sun.shadow.mapSize.set(T.shadow, T.shadow); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; }
+  buildGrass(T.grass); if (state.dieStyle === 'jeli') restyleDice();
+  $('#tierNow').textContent = 'Sekarang: ' + t[0].toUpperCase() + t.slice(1);
+  resize();
+}
+
+/* ---------- events ---------- */
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode); });
+$('#variants').addEventListener('click', e => {
+  const b = e.target.closest('[data-key]'); if (!b || state.busy) return;
+  const key = b.dataset.key, raw = b.dataset.val, val = /^\d+$/.test(raw) ? +raw : raw;
+  if (state[key] === val) return;
+  state[key] = val; store.set(key, val);
+  if (key === 'dieStyle') restyleDice();
+  if (key === 'coinStyle') restyleCoins();
+  if (key === 'spinKind') buildSectors();
+  if (key === 'dieCount' || key === 'coinCount' || key === 'spinKind') { state.eventIdx = 0; showMode(); resetStats(); }
+  renderVariants(); renderPanel(); kick();
+});
+$('#events').addEventListener('click', e => { const b = e.target.closest('[data-ev]'); if (!b) return; state.eventIdx = +b.dataset.ev; tags.forEach(t => t.el.classList.remove('in')); renderPanel(); });
+$('#btnMain').addEventListener('click', doMain);
+document.querySelectorAll('.btn.fast').forEach(b => b.addEventListener('click', () => doFast(+b.dataset.n)));
+$('#btnReset').addEventListener('click', () => { if (!state.busy) { setTags([]); resetStats(); } });
+const sheet = $('#settings'), btnS = $('#btnSettings');
+const openSheet = o => { sheet.hidden = !o; btnS.setAttribute('aria-expanded', String(o)); };
+btnS.addEventListener('click', () => openSheet(sheet.hidden));
+$('#btnCloseSettings').addEventListener('click', () => openSheet(false));
+$('#optFocus').checked = state.focus; $('#optReduce').checked = state.reduced; $('#optQuality').value = state.qualityPref;
+$('#optFocus').addEventListener('change', e => { state.focus = e.target.checked; store.set('focus', state.focus); kick(); });
+$('#optReduce').addEventListener('change', e => { state.reduced = e.target.checked; store.set('reduce', state.reduced); });
+$('#optQuality').addEventListener('change', e => { state.qualityPref = e.target.value; store.set('quality', state.qualityPref); applyTier(state.qualityPref === 'auto' ? autoTier() : state.qualityPref); });
+document.addEventListener('visibilitychange', () => { last = performance.now(); });
+
+function resize(){
+  const w = stageEl.clientWidth, h = stageEl.clientHeight; if (!w || !h) return;
+  renderer.setSize(w, h, false); camera.aspect = w / h;
+  camera.fov = camera.aspect < 1 ? 50 : 42; cam.dist = camera.aspect < .8 ? 1.25 : camera.aspect < 1 ? 1.1 : 1;
+  camera.updateProjectionMatrix(); kick();
+  if (state.outcomes) renderPanel();
+}
+new ResizeObserver(resize).observe(stageEl);
+
+/* ---------- boot ---------- */
+(async () => {
+  try { await document.fonts.ready; } catch {}
+  // re-draw text textures once the web fonts are in
+  restyleDice(); restyleCoins(); buildSectors();
+  renderTabs(); renderVariants(); applyTier(state.tier); showMode(); setCamPreset(state.mode, true); renderPanel();
+  if (state.reduced) $('#stageHint').textContent = 'Kurangi gerakan aktif: hasil langsung tampil';
+  requestAnimationFrame(frame);
+})();
+</script>
