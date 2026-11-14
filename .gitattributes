@@ -4,3 +4,10 @@
 *.png binary
 *.jar binary
 *.jks binary
+
+# Statistik "Languages" GitHub: tampilkan hanya JavaScript (aplikasi) dan Python (server).
+# Berkas di bawah tetap ada di repo, hanya tidak dihitung oleh GitHub Linguist.
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+android/** linguist-vendored
+*.jsx linguist-language=JavaScript
