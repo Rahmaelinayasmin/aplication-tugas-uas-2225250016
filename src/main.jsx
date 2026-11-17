@@ -8,6 +8,7 @@ import '@fontsource/jetbrains-mono/500.css';
 import '@fontsource/jetbrains-mono/700.css';
 import './ui/theme/tokens.css';
 import './ui/theme/app.css';
+import './ui/theme/motion.css';
 import App from './app/App';
 
 // Font dibundel lokal (offline). Ditunggu sebelum render agar tekstur teks 3D memakai font yang benar.

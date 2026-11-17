@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getSetting, getStudent, setSetting } from '../data/repo';
+import { startCloudSync } from '../data/cloud';
 
 const AppCtx = createContext(null);
 export const useApp = () => {
@@ -18,7 +19,9 @@ const DEFAULT_SETTINGS = {
 };
 
 export function AppProvider({ children }) {
-  const [stack, setStack] = useState([{ name: 'login' }]);
+  // Selalu dibuka dari intro meja permainan → roda undian (kode siswa terakhir sudah terisi di roda)
+  const [stack, setStack] = useState([{ name: 'intro' }]);
+  const [navDir, setNavDir] = useState('fwd'); // 'back' memicu transisi "mundur" (rewind)
   const [student, setStudentState] = useState(null);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [toastMsg, setToastMsg] = useState(null);
@@ -31,17 +34,21 @@ export function AppProvider({ children }) {
       const last = await getSetting('lastStudent', null);
       if (last) {
         const s = await getStudent(last);
-        if (s) { setStudentState(s); setStack([{ name: s.diagnosticScore === null ? 'diagnostic' : 'home' }]); }
+        if (s) setStudentState(s);
       }
     })();
   }, []);
 
-  const push = useCallback((r) => { setStack(s => [...s, r]); window.scrollTo(0, 0); }, []);
-  const replace = useCallback((r) => setStack(s => [...s.slice(0, -1), r]), []);
-  const reset = useCallback((r) => setStack([r]), []);
+  // Pencadangan ke Supabase berjalan di latar; aplikasi tetap penuh fungsi tanpa internet
+  useEffect(() => startCloudSync(), []);
+
+  const push = useCallback((r) => { setNavDir('fwd'); setStack(s => [...s, r]); window.scrollTo(0, 0); }, []);
+  const replace = useCallback((r) => { setNavDir('fwd'); setStack(s => [...s.slice(0, -1), r]); }, []);
+  const reset = useCallback((r) => { setNavDir('fwd'); setStack([r]); window.scrollTo(0, 0); }, []);
   const stackRef = useRef(stack); stackRef.current = stack;
   const back = useCallback(() => {
     if (stackRef.current.length <= 1) return false;
+    setNavDir('back');
     setStack(s => s.slice(0, -1));
     return true;
   }, []);
@@ -63,9 +70,10 @@ export function AppProvider({ children }) {
     toastTimer.current = window.setTimeout(() => setToastMsg(null), 2800);
   }, []);
 
+  const motion = !settings.reduced && !settings.focus; // animasi tambahan patuh Mode Fokus & Kurangi Gerakan
   const value = useMemo(() => ({
-    route: stack[stack.length - 1], push, replace, back, reset, student, setStudent, refreshStudent, settings, updateSettings, toast, toastMsg
-  }), [stack, push, replace, back, reset, student, setStudent, refreshStudent, settings, updateSettings, toast, toastMsg]);
+    route: stack[stack.length - 1], depth: stack.length, navDir, motion, push, replace, back, reset, student, setStudent, refreshStudent, settings, updateSettings, toast, toastMsg
+  }), [stack, navDir, motion, push, replace, back, reset, student, setStudent, refreshStudent, settings, updateSettings, toast, toastMsg]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }

@@ -59,6 +59,17 @@ Dua cara mengumpulkan data:
 
 Analisis otomatis (Python/pandas): N-gain + kategori Hake, skor per indikator, beban kognitif IL/EL/GL, dan fading petunjuk. Hasilnya tampil di dasbor `http://<laptop>:8000/dashboard?key=…` atau lewat `python -m app.cli file-ekspor.json`.
 
+## Pencadangan ke Supabase (hanya pemilik yang bisa melihat)
+
+Semua data belajar ditulis dulu ke HP (bisa offline), lalu dikirim otomatis ke Supabase saat ada internet. Tidak ada data yang hilang walau HP offline berhari-hari.
+
+1. Buat proyek di [supabase.com](https://supabase.com) → **SQL Editor** → tempel isi `supabase/schema.sql` → **Run**.
+2. **Project Settings → API**: salin *Project URL* dan kunci **publishable/anon** (JANGAN `service_role`/secret).
+3. Salin `.env.example` menjadi `.env`, isi kedua nilai, lalu `npm run build && npx cap sync android` dan bangun ulang APK.
+4. Lihat data: **Table Editor → `mawiyas_records`**, atau view `mawiyas_latest` (versi terbaru tiap data).
+
+Kunci di aplikasi hanya bisa **menambah** baris; tidak bisa membaca, mengubah, atau menghapus. Yang bisa membaca hanya akun pemilik di Dashboard Supabase.
+
 ## Pengembangan
 
 **Aplikasi (JavaScript)**, butuh Node.js 20+, JDK 21, Android SDK 35:

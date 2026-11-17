@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../../app/store';
-import { db,  } from '../../data/db';
+import { db, APP_VERSION } from '../../data/db';
 import { attemptsOf, getSetting, listStudents, setSetting } from '../../data/repo';
 import { shareExport } from '../../data/export';
 import { INDICATORS } from '../../domain/learning/types';
@@ -219,7 +219,7 @@ export function TeacherScreen() {
           <>
             <p className="fb warn">Semua data siswa, skor, dan kuesioner di HP ini akan hilang dan tidak bisa dikembalikan. Pastikan sudah diekspor.</p>
             <div className="row">
-              <button className="btn danger" onClick={async () => { await Promise.all([db.students.clear(), db.attempts.clear(), db.hintEvents.clear(), db.simulations.clear(), db.surveys.clear()]); await setSetting('lastStudent', null); setConfirmWipe(false); toast('Semua data dihapus'); location.reload(); }}>Ya, hapus</button>
+              <button className="btn danger" onClick={async () => { await Promise.all([db.students.clear(), db.attempts.clear(), db.hintEvents.clear(), db.simulations.clear(), db.surveys.clear(), db.questRuns.clear(), db.questAnswers.clear(), db.rests.clear()]); await setSetting('lastStudent', null); setConfirmWipe(false); toast('Semua data dihapus'); location.reload(); }}>Ya, hapus</button>
               <button className="btn ghost" onClick={() => setConfirmWipe(false)}>Batal</button>
             </div>
           </>
@@ -258,9 +258,9 @@ export function SettingsScreen() {
       </section>
       <section className="card form">
         <p className="note">Masuk sebagai <b>{student?.code}</b>. HP ini bisa dipakai bergantian dengan kode siswa yang berbeda.</p>
-        <button className="btn" onClick={() => { setStudent(null); reset({ name: 'login' }); }}>Ganti kode siswa</button>
+        <button className="btn" onClick={() => { setStudent(null); reset({ name: 'intro' }); }}>Ganti kode siswa</button>
       </section>
-      <p className="note center">MaWiYas 1.2.0 · tanpa iklan · data tersimpan di HP ini</p>
+      <p className="note center">MaWiYas {APP_VERSION} · tanpa iklan · data tersimpan di HP ini</p>
     </main>
   );
 }

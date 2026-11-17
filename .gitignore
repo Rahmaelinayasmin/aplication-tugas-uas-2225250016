@@ -16,3 +16,7 @@ server/*.db
 __pycache__/
 .pytest_cache/
 hasil-analisis/
+
+# konfigurasi Supabase lokal
+.env
+.env.local

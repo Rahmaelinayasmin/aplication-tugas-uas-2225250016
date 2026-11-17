@@ -20,7 +20,8 @@ export async function buildExport(kind) {
     const data = JSON.stringify({
       exportedAt: new Date().toISOString(),
       students: await db.students.toArray(), attempts: await db.attempts.toArray(), hintEvents: await db.hintEvents.toArray(),
-      simulations: await db.simulations.toArray(), surveys: await db.surveys.toArray()
+      simulations: await db.simulations.toArray(), surveys: await db.surveys.toArray(),
+      questRuns: await db.questRuns.toArray(), questAnswers: await db.questAnswers.toArray(), rests: await db.rests.toArray()
     }, null, 1);
     return { name: `mawiyas-semua-${stamp}.json`, data, mime: 'application/json' };
   }

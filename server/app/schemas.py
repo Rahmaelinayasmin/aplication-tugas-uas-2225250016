@@ -9,7 +9,7 @@ class Camel(BaseModel):
 
 
 class RegisterIn(Camel):
-    class_code: str = Field(pattern=r"^[0-9]{1,2}[A-Z]{0,2}$")
+    class_code: str = Field(pattern=r"^[A-Z0-9][A-Z0-9 .-]{0,11}$")
     enroll_key: str
 
 
@@ -18,7 +18,7 @@ class RegisterOut(Camel):
 
 
 class StudentIn(Camel):
-    code: str = Field(pattern=r"^S\d{2,3}$")
+    code: str = Field(pattern=r"^[A-Z]{1,3}[0-9]{1,9}$")
     class_code: str
     diagnostic_score: float | None = None
     remedial_done: bool = False

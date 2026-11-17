@@ -1,0 +1,241 @@
+/* Animasi tambahan 1.3.0 (permintaan peneliti, 17 Nov 2026).
+   Semua animasi di berkas ini MATI bila html[data-motion="off"] (Mode Fokus / Kurangi Gerakan) atau
+   prefers-reduced-motion. Animasi lama (Lab 3D, dll.) tidak diubah. */
+
+/* ───────── Transisi kembali: "rewind" sambil bergeser cepat ke kiri ───────── */
+.nav-view { position: relative; }
+.nav-back { animation: nav-rewind 0.34s cubic-bezier(.2, .7, .3, 1); }
+@keyframes nav-rewind {
+  0%   { transform: translateX(32%); filter: grayscale(.7) contrast(1.15) blur(1.5px); opacity: .55; }
+  35%  { transform: translateX(-4%); filter: grayscale(.35) blur(.6px); opacity: .9; }
+  60%  { transform: translateX(1.5%); }
+  100% { transform: none; filter: none; opacity: 1; }
+}
+.rewind-fx { position: fixed; inset: 0; z-index: 50; pointer-events: none; display: grid; place-items: center;
+  background: repeating-linear-gradient(0deg, rgba(46, 52, 64, .06) 0 2px, transparent 2px 6px);
+  animation: rewind-fx 0.36s ease-out forwards; }
+.rewind-fx span { font-size: 54px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .25)); }
+@keyframes rewind-fx { 0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+/* ───────── Intro: meja permainan → roda undian ───────── */
+.intro-cam { position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden; perspective: 900px;
+  background: radial-gradient(120% 80% at 50% 10%, #3A4A63 0%, #232B3A 70%); color: #fff; }
+.intro-layer { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px)); transform-style: preserve-3d; }
+.intro-title { text-align: center; }
+.intro-title h1 { font-size: 34px; letter-spacing: .02em; }
+.intro-title p { color: #C9D0DC; font-size: 14.5px; }
+.intro-go { min-width: 200px; font-size: 18px; min-height: 54px; box-shadow: 0 6px 18px rgba(91, 141, 239, .45); }
+
+/* kamera melaju ke depan: meja melewati kamera, roda datang dari jauh */
+.stage-toWheel .casino-layer { animation: fly-past 1.1s cubic-bezier(.5, 0, .3, 1) forwards; }
+.stage-toWheel .wheel-layer { animation: fly-in 1.1s cubic-bezier(.4, 0, .2, 1) both; }
+@keyframes fly-past { to { transform: translateZ(820px) translateY(8%); opacity: 0; } }
+@keyframes fly-in { from { transform: translateZ(-1400px); opacity: 0; } 55% { opacity: 1; } to { transform: none; opacity: 1; } }
+
+.casino { position: relative; width: min(340px, 88vw); height: 230px; perspective: 700px; }
+.casino-table { position: absolute; inset: 20px 0 0; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 40%, #3AA36B 0%, #23784A 60%, #1B5E3A 100%);
+  border: 14px solid #7A4A2A; box-shadow: 0 30px 40px rgba(0, 0, 0, .45), inset 0 0 30px rgba(0, 0, 0, .35);
+  transform: rotateX(58deg); }
+.felt-line { position: absolute; inset: 22% 18%; border: 2px solid rgba(255, 255, 255, .35); border-radius: 50%; }
+.cards-fan { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 120px; height: 80px; }
+.tcard { position: absolute; left: 40px; top: 0; width: 46px; height: 66px; background: #fff; border-radius: 6px; color: #2E3440;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .3); font-weight: 800; transform-origin: 50% 110%; }
+.tcard.red { color: #B23A55; }
+.tcard:nth-child(1) { transform: rotate(-22deg); }
+.tcard:nth-child(2) { transform: rotate(0deg) translateY(-4px); }
+.tcard:nth-child(3) { transform: rotate(22deg); }
+.pc-corner { position: absolute; left: 5px; top: 3px; font-size: 11px; line-height: 1.05; }
+.pc-suit { position: absolute; inset: 0; display: grid; place-items: center; font-size: 24px; }
+.dice-row { position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: center; gap: 70px; }
+.die3d { --z: 18px; position: relative; width: 36px; height: 36px; transform-style: preserve-3d;
+  transform: rotateX(-24deg) rotateY(32deg); animation: die-idle 7s ease-in-out infinite; }
+.die3d.d2 { animation-delay: -3.5s; transform: rotateX(-18deg) rotateY(-28deg); }
+@keyframes die-idle { 0%, 100% { transform: rotateX(-24deg) rotateY(32deg) translateY(0); } 50% { transform: rotateX(-20deg) rotateY(58deg) translateY(-6px); } }
+.die-face { position: absolute; inset: 0; background: #FBF8F3; border-radius: 7px; box-shadow: inset 0 0 0 1px #E7DFD2;
+  display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 4px; backface-visibility: hidden; }
+.die-face.f0 { transform: translateZ(var(--z)); }
+.die-face.f1 { transform: rotateY(180deg) translateZ(var(--z)); }
+.die-face.f2 { transform: rotateY(90deg) translateZ(var(--z)); }
+.die-face.f3 { transform: rotateY(-90deg) translateZ(var(--z)); }
+.die-face.f4 { transform: rotateX(90deg) translateZ(var(--z)); }
+.die-face.f5 { transform: rotateX(-90deg) translateZ(var(--z)); }
+.pip { width: 6px; height: 6px; border-radius: 50%; align-self: center; justify-self: center; }
+.pip.on { background: #2E3440; }
+
+/* roda undian */
+.wheel-layer { justify-content: flex-start; overflow-y: auto; }
+.wheel-zoom { transform-origin: 50% 50%; }
+.stage-enter .wheel-zoom { animation: enter-spin .9s cubic-bezier(.55, 0, .8, .4) forwards; }
+.stage-enter .wheel-form { animation: fade-out .3s ease-out forwards; }
+@keyframes enter-spin { to { transform: scale(7) rotate(70deg); opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+.wheel-box { position: relative; width: min(280px, 72vw); aspect-ratio: 1; margin-top: 14px; }
+.wheel { width: 100%; height: 100%; display: block; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35)); }
+.wheel.spinning { animation: wheel-spin 3.2s cubic-bezier(.15, .65, .2, 1) forwards; }
+@keyframes wheel-spin { from { transform: rotate(0); } to { transform: rotate(1800deg); } }
+.wheel .w-code { font-family: var(--f-num); font-weight: 700; font-size: 11px; fill: #2E3440; }
+.wheel .w-cls { font-weight: 700; font-size: 8px; fill: #5B6475; }
+.wheel-pointer { position: absolute; z-index: 2; left: 50%; top: -6px; transform: translateX(-50%); width: 0; height: 0;
+  border-left: 13px solid transparent; border-right: 13px solid transparent; border-top: 24px solid #E8863A; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .35)); }
+.wheel-form { width: 100%; max-width: 380px; color: var(--ink); }
+.wheel-form .ayo { font-size: 18px; animation: ayo-pop .35s ease-out; }
+@keyframes ayo-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ───────── Pemandu pemain bola → tendangan → gawang ───────── */
+.guide { position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden;
+  background: linear-gradient(#BFE3F5 0 38%, #A8D5A2 38% 100%); }
+.pitch-world { position: absolute; inset: 0; width: 200%; display: flex; transition: transform 1.35s cubic-bezier(.45, 0, .25, 1) .25s; }
+.guide.kicking .pitch-world { transform: translateX(-50%); }   /* kamera mengikuti bola ke gawang */
+.pitch-panel { position: relative; width: 50%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  background: repeating-linear-gradient(90deg, transparent 0 60px, rgba(255, 255, 255, .08) 60px 120px); }
+.bubble { position: relative; max-width: 300px; background: #fff; color: var(--ink); border-radius: 18px; padding: 14px 18px; font-size: 18px;
+  box-shadow: 0 6px 16px rgba(46, 52, 64, .18); animation: ayo-pop .3s ease-out; }
+.bubble::after { content: ''; position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%);
+  border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 14px solid #fff; }
+.athlete-btn { border: 0; background: none; padding: 0; min-width: 48px; min-height: 48px; }
+.athlete { width: 128px; height: 210px; display: block; }
+.athlete .arm-wave { transform-origin: 83px 64px; animation: wave 1.6s ease-in-out infinite; }
+@keyframes wave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-150deg); } }
+.athlete .leg-kick { transform-origin: 69px 120px; }
+.guide.kicking .athlete .arm-wave { animation: none; }
+.guide.kicking .athlete .leg-kick { animation: kick .45s ease-in-out; }
+@keyframes kick { 0% { transform: rotate(0); } 40% { transform: rotate(35deg); } 70% { transform: rotate(-60deg); } 100% { transform: rotate(0); } }
+.guide-tip { font-weight: 700; color: #2E5B33; background: rgba(255, 255, 255, .7); border-radius: 10px; padding: 4px 10px; font-size: 14px; }
+.ball-track { position: absolute; left: calc(50% + 44px); bottom: calc(50% - 112px); width: 26px; height: 26px; }
+.sball { width: 26px; height: 26px; display: block; }
+.guide.kicking .ball-track { animation: ball-x 1.55s cubic-bezier(.35, 0, .3, 1) .2s forwards; }
+.guide.kicking .ball-arc { animation: ball-y 1.55s ease-in-out .2s forwards; }
+.guide.kicking .sball { animation: ball-roll .4s linear .2s infinite; }
+@keyframes ball-x { to { transform: translateX(calc(100vw - 30px)); } }
+@keyframes ball-y { 0% { transform: translateY(0) scale(1); } 45% { transform: translateY(-150px) scale(.85); } 100% { transform: translateY(-110px) scale(.6); } }
+@keyframes ball-roll { to { transform: rotate(360deg); } }
+.goal-panel { justify-content: center; }
+.goal { width: min(320px, 82vw); display: block; }
+.goal.small { width: 100%; }
+.guide.scored .goal .net { animation: net-shake .5s ease-out; transform-origin: 50% 0; }
+@keyframes net-shake { 30% { transform: scaleY(1.06) translateY(3px); } 60% { transform: scaleY(.98); } }
+.goal-text { font-size: 24px; font-weight: 800; color: #fff; text-shadow: 0 2px 6px rgba(0, 0, 0, .3); animation: ayo-pop .3s ease-out; }
+
+/* ───────── Beranda inti ───────── */
+.hub-head { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 34px 14px 12px;
+  border-radius: var(--r); background: linear-gradient(#BFE3F5 0 55%, #A8D5A2 55%); overflow: hidden; }
+.hub-goal { position: absolute; left: 50%; top: 6px; width: 180px; transform: translateX(-50%); opacity: .55; pointer-events: none; }
+.hub-head .brand, .hub-head .icon-btn { position: relative; }
+.hub-head .brand { background: rgba(255, 255, 255, .85); border-radius: 12px; padding: 6px 10px 6px 6px; }
+.t-test { background: var(--butter); }
+.t-rest { background: var(--rose); }
+
+/* ───────── Kemampuan Saya ───────── */
+.ability-score { font-family: var(--f-num); }
+.ability-score b { font-size: 56px; line-height: 1; color: var(--primary); }
+.ability-score span { font-size: 22px; color: var(--ink-soft); }
+.ability-bar { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 360px; }
+.ability-bar i { height: 10px; border-radius: 5px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
+.ability-bar i.on { background: var(--primary); box-shadow: none; }
+.ability-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ability-row { flex-direction: row; align-items: center; gap: 12px; padding: 12px 14px; }
+.ability-row > div { flex: 1; min-width: 0; }
+.ab-no { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-family: var(--f-num); background: var(--surface-2); }
+.ab-mark { flex: none; width: 24px; font-weight: 800; color: var(--ok); font-size: 20px; text-align: center; }
+.ability-row.ok .ab-no { background: var(--ok-soft); color: var(--ok); }
+.ability-row.next { box-shadow: 0 0 0 2px var(--primary); }
+
+/* ───────── Istirahat ───────── */
+.rest-card { gap: 14px; }
+.breath { width: 120px; height: 120px; display: grid; place-items: center; }
+.breath span { width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle, #BFE3F5, #8FC3E6); }
+.breath.on span { animation: breathe 8s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.65); } }
+.rest-time { font-family: var(--f-num); font-size: 40px; font-weight: 700; }
+.rest-tips { text-align: left; margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: 14.5px; }
+
+/* ───────── Latihan Soal Berlevel ───────── */
+.level-card { gap: 4px; }
+.level-card b { font-size: 17px; }
+.lv-mudah { box-shadow: inset 4px 0 0 #8EC48A; }
+.lv-sedang { box-shadow: inset 4px 0 0 #F4B266; }
+.lv-sulit { box-shadow: inset 4px 0 0 #B23A55; }
+.q-stem { font-size: 16px; }
+.rest-suggest { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+.game-card { gap: 8px; padding: 12px 14px; overflow: hidden; }
+.g-caption { font-size: 14px; font-weight: 600; color: var(--ink-soft); min-height: 21px; }
+.g-meter { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
+.g-meter > span { width: 64px; color: var(--ink-soft); }
+.g-meter b { font-family: var(--f-num); min-width: 36px; text-align: right; }
+.g-bar { flex: 1; height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.g-bar i { display: block; height: 100%; border-radius: 6px; transition: width .5s ease; }
+.g-bar.life i { background: linear-gradient(90deg, #E86A8A, #F4A6C0); }
+.g-bar.fuel i { background: linear-gradient(90deg, #E8863A, #F7D774); }
+
+/* suit */
+.suit-arena { display: flex; align-items: center; justify-content: space-around; gap: 8px; }
+.suit-vs { font-weight: 800; color: var(--ink-soft); }
+.suit-player { position: relative; display: flex; flex-direction: column; align-items: center; width: 96px; }
+.suit-player svg { width: 72px; height: 86px; transition: transform .3s; }
+.suit-hand { position: absolute; top: 34px; right: -14px; font-size: 34px; line-height: 1; }
+.suit-player.flip .suit-hand { right: auto; left: -14px; transform: scaleX(-1); }
+.suit-player b { font-size: 13px; }
+.suit-player.win svg { transform: translateY(-6px); }
+.suit-player.lose { opacity: .6; }
+.suit-arena.shaking .suit-hand { animation: suit-shake .3s ease-in-out 3; }
+@keyframes suit-shake { 50% { transform: translateY(-12px); } }
+.suit-arena.shaking .suit-player.flip .suit-hand { animation-name: suit-shake-flip; }
+@keyframes suit-shake-flip { 0%, 100% { transform: scaleX(-1); } 50% { transform: scaleX(-1) translateY(-12px); } }
+
+/* mobil */
+.road { position: relative; height: 84px; border-radius: 12px; background: linear-gradient(#BDEBD6 0 36%, #8A93A3 36% 92%, #BDEBD6 92%); overflow: hidden; }
+.road-lane { position: absolute; left: 0; right: 0; top: 63%; border-top: 3px dashed rgba(255, 255, 255, .8); }
+.road-home, .road-office { position: absolute; top: 2px; font-size: 26px; }
+.road-home { left: 4px; }
+.road-office { right: 4px; }
+.car { position: absolute; bottom: 10px; width: 74px; }
+.car svg { display: block; width: 100%; }
+.car.drive .wheel-g { animation: wheel-roll .4s linear 2; transform-box: fill-box; transform-origin: center; }
+.car.bump { animation: car-bump .4s ease-in-out 2; }
+@keyframes wheel-roll { to { transform: rotate(360deg); } }
+@keyframes car-bump { 50% { transform: translateY(-3px) rotate(-2deg); } }
+
+/* kucing */
+.moons { flex: 1; display: flex; gap: 6px; }
+.moons i { font-style: normal; font-size: 18px; color: var(--line); }
+.moons i.on { color: var(--hint); }
+.cat-scene svg { display: block; width: 100%; max-height: 140px; }
+.cat-scene .zzz, .cat-scene .eyes-closed { opacity: 0; transition: opacity .3s; }
+.cat-scene.mood-sleep .zzz, .cat-scene.mood-sleep .eyes-closed { opacity: 1; }
+.cat-scene.mood-sleep .eyes-open { opacity: 0; }
+.cat-scene.mood-sleep .zzz { animation: zzz 2s ease-in-out infinite; }
+@keyframes zzz { 50% { transform: translateY(-4px); } }
+.cat-scene .cat-head { transform-box: fill-box; transform-origin: 30% 80%; transition: transform .4s; }
+.cat-scene.mood-sleep .cat-head { transform: rotate(18deg) translateY(10px); }
+.cat-scene.mood-eat .cat-head { animation: nom .4s ease-in-out 4; }
+@keyframes nom { 50% { transform: translate(14px, 14px) rotate(14deg); } }
+.cat-scene.mood-eat .fish { animation: eaten 1.6s ease-in forwards; }
+.cat-scene.mood-happy .fish { opacity: 0; }
+@keyframes eaten { to { opacity: 0; transform: scale(.4); transform-origin: 150px 82px; } }
+.cat-scene.mood-happy .tail, .cat-scene.mood-eat .tail { animation: tail .8s ease-in-out infinite; transform-box: fill-box; transform-origin: 100% 100%; }
+@keyframes tail { 50% { transform: rotate(-12deg); } }
+
+/* ───────── Penghargaan bunga ───────── */
+.reward-backdrop { position: fixed; inset: 0; z-index: 35; background: rgba(46, 52, 64, .45); display: grid; place-items: center; padding: 16px; }
+.reward { width: 100%; max-width: 420px; background: var(--surface); border-radius: 20px; padding: 0 18px 18px; text-align: center; overflow: hidden;
+  display: flex; flex-direction: column; gap: 14px; box-shadow: 0 16px 40px rgba(0, 0, 0, .25); }
+.flower-bed { position: relative; height: 170px; margin: 0 -18px; background: linear-gradient(#FFF8FB, #F5F1EA); }
+.flower { position: absolute; bottom: -8px; width: 56px; height: 112px; transform: translateX(-50%) scale(var(--s)); transform-origin: 50% 100%; overflow: visible; }
+.reward.bloom .flower { animation: grow 0.9s cubic-bezier(.3, 1.4, .5, 1) var(--d) both; }
+.reward.bloom .flower .petals { animation: petal-sway 3s ease-in-out calc(var(--d) + 1s) 2; transform-box: fill-box; transform-origin: center; }
+@keyframes grow { from { transform: translateX(-50%) scale(0); } to { transform: translateX(-50%) scale(var(--s)); } }
+@keyframes petal-sway { 50% { transform: rotate(14deg); } }
+.reward-text { font-size: 18px; font-weight: 800; line-height: 1.45; color: #B5466E; }
+.reward-actions { display: flex; flex-direction: column; gap: 8px; }
+
+/* ───────── Patuh Mode Fokus & Kurangi Gerakan ───────── */
+html[data-motion="off"] .nav-back, html[data-motion="off"] .rewind-fx,
+html[data-motion="off"] .die3d, html[data-motion="off"] .athlete *, html[data-motion="off"] .bubble,
+html[data-motion="off"] .wheel-form .ayo, html[data-motion="off"] .game-card *, html[data-motion="off"] .reward *,
+html[data-motion="off"] .breath span { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  /* alur intro diatur oleh pengaturan "Kurangi gerakan" (bawaannya mengikuti setelan HP ini) */
+  .nav-back, .rewind-fx, .die3d, .athlete *, .bubble, .game-card *, .reward *, .breath span { animation: none !important; transition: none !important; }
+}

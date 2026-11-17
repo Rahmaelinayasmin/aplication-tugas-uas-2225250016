@@ -190,3 +190,19 @@ Masuk (kode siswa) → Diagnostik pecahan ─┬─ lulus ───────�
 - Distribusi: APK langsung atau Google Play (internal testing)?
 - Berapa sesi/pertemuan uji coba dan durasi tiap sesi?
 - Data latihan di rumah: diekspor oleh siswa sendiri atau dikumpulkan saat pertemuan berikutnya di kelas?
+
+## 11. Tambahan atas permintaan peneliti (17 Nov 2026, v1.3.0)
+
+Fitur di bawah diminta langsung oleh peneliti (pemilik produk). Beberapa sengaja **menyimpang** dari aturan desain awal; penyimpangan dicatat agar bisa dievaluasi pada tahap Evaluation.
+
+| Kode | Fitur | Catatan / penyimpangan |
+|---|---|---|
+| F15 | Intro: meja permainan (dadu & kartu) → roda undian kode siswa → pemain bola pemandu → tendangan ke gawang → Beranda inti | Animasi dekoratif (menyimpang dari D3/EL03). Dibuat CSS/SVG (bukan three.js) agar ringan; mati saat Mode Fokus / Kurangi Gerakan |
+| F16 | Transisi "kembali": rewind + geser cepat ke kiri | Mati saat Mode Fokus / Kurangi Gerakan |
+| F17 | Latihan Soal Berlevel: Mudah 5 (suit, nyawa 100), Sedang 10 (mobil ke kantor, bensin 100), Sulit 15 (kucing, maks. 5 salah); salah −5; soal tidak lanjut sebelum benar; petunjuk 3/2/1 per soal | Elemen permainan menambah beban ekstrinsik — perlu diamati (kuesioner EL). Petunjuk tetap tidak memuat jawaban (F05). Isi soal = draf, perlu validasi |
+| F18 | Penghargaan bunga (biru, merah muda, kuning, putih) + kalimat penutup | Hanya muncul saat level selesai |
+| F19 | Kemampuan Saya 1–10 (tangga 10 kemampuan konkret) | Hanya untuk siswa sendiri, bukan peringkat (sesuai §6) |
+| F20 | Istirahat (3/5/10 menit) + saran istirahat otomatis (3× salah beruntun atau 15 menit) | Lama istirahat dicatat |
+| F21 | Kode siswa huruf+angka bebas (A01, B12, …), kode kelas bebas | Tetap tanpa nama asli (aturan 18) |
+| F22 | Pencadangan ke Supabase | Mengubah keputusan §10 "tanpa server". Tanpa SDK (REST langsung), offline-first lewat antrean; kunci aplikasi hanya bisa menambah; hanya pemilik proyek yang bisa membaca. Perlu disebut di surat persetujuan orang tua/wali |
+

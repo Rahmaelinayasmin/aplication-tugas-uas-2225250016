@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../../app/store';
-import { CLASS_RE, CODE_RE, listStudents, login, updateStudent } from '../../data/repo';
+import { CLASS_RE, CODE_RE, listStudents, login, normClass, normCode, updateStudent } from '../../data/repo';
 import { DIAGNOSTIC, DIAGNOSTIC_PASS } from '../../domain/content/lessons';
 import { isCorrect } from '../../domain/learning/scoring';
 import { StepInput } from '../components/StepInput';
@@ -15,12 +15,12 @@ export function LoginScreen() {
   const [known, setKnown] = useState([]);
   useEffect(() => { listStudents().then(setKnown); }, []);
 
-  const go = async (s) => { setStudent(s); reset({ name: s.diagnosticScore === null ? 'diagnostic' : 'home' }); };
+  const go = async (s) => { setStudent(s); reset({ name: s.diagnosticScore === null ? 'diagnostic' : 'hub' }); };
   const submit = async (e) => {
     e.preventDefault();
-    const c = code.trim().toUpperCase(), k = cls.trim().toUpperCase().replace(/\s/g, '');
-    if (!CODE_RE.test(c)) { setErr('Kode siswa ditulis seperti S01 atau S12. Tanya gurumu kalau belum punya kode.'); return; }
-    if (!CLASS_RE.test(k)) { setErr('Kode kelas ditulis seperti 8A atau 9B.'); return; }
+    const c = normCode(code), k = normClass(cls);
+    if (!CODE_RE.test(c)) { setErr('Kode siswa: huruf lalu angka, misalnya S01, A01, atau B12.'); return; }
+    if (!CLASS_RE.test(k)) { setErr('Kode kelas boleh huruf dan angka, misalnya 8A. Maksimal 12 karakter.'); return; }
     go(await login(c, k));
   };
 
@@ -77,10 +77,10 @@ export function DiagnosticScreen() {
           <h1>{pass ? 'Dasar pecahanmu siap!' : 'Yuk, pemanasan pecahan dulu'}</h1>
           <p>Kamu menjawab benar {Math.round(done * DIAGNOSTIC.length)} dari {DIAGNOSTIC.length} soal.</p>
           {pass
-            ? <button className="btn primary" onClick={() => reset({ name: 'home' })}>Mulai belajar</button>
+            ? <button className="btn primary" onClick={() => reset({ name: 'hub' })}>Mulai belajar</button>
             : <>
                 <p className="note">Hasil peluang selalu berupa pecahan. Pemanasan singkat ini membantu supaya hitunganmu tidak tersendat.</p>
-                <button className="btn primary" onClick={() => { reset({ name: 'home' }); push({ name: 'lesson', id: 'pecahan' }); }}>Mulai Pecahan Kilat</button>
+                <button className="btn primary" onClick={() => { reset({ name: 'hub' }); push({ name: 'lesson', id: 'pecahan' }); }}>Mulai Pecahan Kilat</button>
               </>}
         </section>
       </main>

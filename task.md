@@ -53,6 +53,10 @@ Status: `[x]` selesai · `[ ]` belum · `[~]` sebagian · ⏳ menunggu keputusan
 - [x] v1.2.0: suara lembut & getar (bisa dimatikan), ukuran teks 100/115/130%, F07 "Jelaskan ke teman" (diekspor & disinkron), tahap "buat sendiri" tabel 2 dadu (cari pasangan berjumlah 7)
 - [x] Kode di GitHub: https://github.com/Rahmaelinayasmin/aplication-tugas-uas-2225250016
 - [x] Bahasa aplikasi diubah dari TypeScript ke **JavaScript** (server tetap **Python**); 20 tes lulus, APK 1.2.0 dibangun ulang
+- [x] v1.3.0 (permintaan peneliti 17 Nov 2026): intro meja permainan → roda undian kode siswa → pemain bola pemandu → tendangan ke gawang → Beranda inti; transisi "kembali" (rewind, geser kiri); Latihan Soal Berlevel (Mudah 5 · Sedang 10 · Sulit 15; petunjuk 3/2/1; suit + nyawa, mobil + bensin, kucing + maks. 5 salah; tidak lanjut sebelum benar); penghargaan bunga; Kemampuan Saya 1–10; Istirahat; progres level tersimpan & bisa dilanjutkan; kode siswa huruf+angka bebas, kode kelas bebas; pencadangan Supabase (hanya-tambah, hanya pemilik bisa membaca) — 43 tes JS + 14 tes Python lulus
+- [ ] ⏳ Validasi isi 30 soal berlevel & petunjuknya (`src/domain/content/questItems.js`) oleh peneliti/ahli
+- [ ] ⏳ Buat proyek Supabase, jalankan `supabase/schema.sql`, isi `.env`, lalu bangun ulang APK
+- [ ] Uji fps intro & permainan pendamping di HP tier hemat
 - [ ] Dadu polihedral 4/8/12/20 sisi (P2, di luar kurikulum kelas VIII — sengaja tidak dibuat)
 - [ ] Uji di ≥ 2 HP Android nyata (kelas bawah & menengah): fps, suhu, baterai 30 menit
 - [~] Aksesibilitas: ukuran teks 130% diuji (tanpa geser horizontal); uji TalkBack di HP nyata belum
