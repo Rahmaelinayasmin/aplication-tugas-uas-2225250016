@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../../app/store';
 import { CLASS_RE, CODE_RE, listStudents, login, normClass, normCode } from '../../data/repo';
+import { IntroScene } from '../../engine3d/IntroScene';
+import { PitchScene } from '../../engine3d/PitchScene';
+import { Canvas3D, use3D } from '../components/Canvas3D';
+import { playResult } from '../sound';
 
 /* Alur pembuka (permintaan peneliti, 17 Nov 2026):
    ① Meja permainan + dadu & kartu → "Masuk" → kamera melaju ke depan (kecepatan sedang)
@@ -14,7 +18,20 @@ const FLY_MS = 1100;   // kamera melaju ke depan (sedang)
 const SPIN_MS = 3200;  // roda berputar
 const ENTER_MS = 900;  // kamera masuk ke putaran
 
+/* Versi 3D (three.js) dipakai bila WebGL tersedia & gerakan diizinkan; selain itu versi CSS/SVG ringan */
 export function IntroScreen() {
+  const can3d = use3D();
+  const [failed, setFailed] = useState(false);
+  return can3d && !failed ? <Intro3D onFail={() => setFailed(true)} /> : <IntroFlat />;
+}
+
+function GuideFlat() {
+  const can3d = use3D();
+  const [failed, setFailed] = useState(false);
+  return can3d && !failed ? <Guide3D onFail={() => setFailed(true)} /> : <GuideFlat />;
+}
+
+function IntroFlat() {
   const { student, setStudent, reset, motion } = useApp();
   const [stage, setStage] = useState('casino'); // casino → toWheel → wheel → spin → enter
   const [code, setCode] = useState('');
@@ -260,5 +277,132 @@ export function Goal({ small }) {
       <path d="M10 124 V10 H210 V124" fill="none" stroke="#D5DCE5" strokeWidth="2" />
       <rect x="0" y="122" width="220" height="5" rx="2" fill="#fff" opacity=".8" />
     </svg>
+  );
+}
+
+/* ═════════════ Versi 3D ═════════════ */
+
+/** Isi roda: kode yang sedang diketik di sektor 0 (tempat jarum berhenti), lalu kode lain di HP ini */
+function useWheelForm() {
+  const { student } = useApp();
+  const [code, setCode] = useState('');
+  const [cls, setCls] = useState('');
+  const [err, setErr] = useState('');
+  const [known, setKnown] = useState([]);
+  useEffect(() => { listStudents().then(setKnown).catch(() => setKnown([])); }, []);
+  useEffect(() => { if (student) { setCode(c => c || student.code); setCls(k => k || student.classCode); } }, [student]);
+  const c = normCode(code), k = normClass(cls);
+  const ready = CODE_RE.test(c) && CLASS_RE.test(k);
+  const sectors = useMemo(() => {
+    const me = ready ? { code: c, cls: k } : { code: '?', cls: 'kodemu' };
+    return [me, ...known.filter(s => s.code !== c).slice(0, 7).map(s => ({ code: s.code, cls: s.classCode }))];
+  }, [ready, c, k, known]);
+  return { code, setCode, cls, setCls, err, setErr, known, c, k, ready, sectors };
+}
+
+function Intro3D({ onFail }) {
+  const { setStudent, reset, settings } = useApp();
+  const f = useWheelForm();
+  const [stage, setStage] = useState('casino'); // casino → toWheel → wheel → spin → enter
+  const eng = useRef(null);
+  const alive = useRef(true);
+  useEffect(() => () => { alive.current = false; }, []);
+  useEffect(() => { eng.current?.setSectors(f.sectors); }, [f.sectors]);
+
+  const enter = async () => {
+    setStage('toWheel');
+    await eng.current?.goToWheel();
+    if (alive.current) setStage('wheel');
+  };
+  const go = async () => {
+    if (!CODE_RE.test(f.c)) { f.setErr('Kode siswa: huruf lalu angka, misalnya S01, A01, atau B12.'); return; }
+    if (!CLASS_RE.test(f.k)) { f.setErr('Kode kelas boleh huruf dan angka, misalnya 8A.'); return; }
+    const s = await login(f.c, f.k);
+    setStudent(s);
+    setStage('spin');
+    await eng.current?.spin();
+    if (!alive.current) return;
+    setStage('enter');
+    await eng.current?.dive();
+    if (alive.current) reset({ name: 'guide' });
+  };
+  const busy = stage === 'spin' || stage === 'enter';
+
+  return (
+    <main className={'intro3d stage-' + stage}>
+      <Canvas3D className="full"
+        make={(o) => new IntroScene({ ...o, onDiceLand: () => { if (settings.sound) playResult('dice'); } })}
+        onReady={(e) => { eng.current = e; e.setSectors(f.sectors); }} onFail={onFail} />
+      {(stage === 'casino' || stage === 'toWheel') && (
+        <div className="i3-casino">
+          <div className="intro-title"><h1>MaWiYas</h1><p>Meja peluang: dadu, kartu, dan kejutan</p></div>
+          <button className="btn primary intro-go" onClick={() => void enter()} disabled={stage !== 'casino'}>Masuk</button>
+        </div>
+      )}
+      {stage !== 'casino' && stage !== 'toWheel' && (
+        <form className="card form wheel-form i3-form" onSubmit={e => { e.preventDefault(); void go(); }}>
+          <label htmlFor="in-code">Kode siswa</label>
+          <input id="in-code" autoComplete="off" autoCapitalize="characters" maxLength={12} placeholder="A01" value={f.code} disabled={busy}
+            onChange={e => { f.setCode(e.target.value); f.setErr(''); }} />
+          <label htmlFor="in-cls">Kode kelas</label>
+          <input id="in-cls" autoComplete="off" autoCapitalize="characters" maxLength={12} placeholder="8A" value={f.cls} disabled={busy}
+            onChange={e => { f.setCls(e.target.value); f.setErr(''); }} />
+          {f.err && <p className="fb bad">{f.err}</p>}
+          {f.ready
+            ? <button className="btn primary ayo" type="submit" disabled={busy}>Ayo</button>
+            : <p className="note">Isi kode siswa dan kode kelasmu. Jangan pakai nama asli ya.</p>}
+          {f.known.length > 0 && !busy && (
+            <div className="row">
+              {f.known.map(s => <button type="button" key={s.code} className="chip small" onClick={() => { f.setCode(s.code); f.setCls(s.classCode); f.setErr(''); }}>{s.code} · {s.classCode}</button>)}
+            </div>
+          )}
+        </form>
+      )}
+      {stage === 'enter' && <div className="whiteout in" aria-hidden="true" />}
+    </main>
+  );
+}
+
+function Guide3D({ onFail }) {
+  const { student, reset } = useApp();
+  const [taps, setTaps] = useState(0);
+  const [goal, setGoal] = useState(false);
+  const eng = useRef(null);
+  const bubble = useRef(null);
+  const alive = useRef(true);
+  useEffect(() => () => { alive.current = false; }, []);
+
+  // balon kata menempel di atas kepala pemain (mengikuti kamera)
+  const place = () => {
+    const e = eng.current, b = bubble.current;
+    if (!e || !b) return;
+    const p = e.headScreen();
+    b.style.transform = `translate(${Math.round(p.x)}px, ${Math.round(p.y)}px) translate(-50%, -100%)`;
+  };
+
+  const tap = async () => {
+    if (taps >= 2 || !eng.current) return;
+    const n = taps + 1;
+    setTaps(n);
+    if (n === 1) { eng.current.cheer(); return; }
+    await eng.current.kick();
+    window.setTimeout(() => { if (alive.current) reset({ name: 'hub' }); }, 1700);
+  };
+
+  return (
+    <main className="guide3d">
+      <Canvas3D className="full" make={(o) => new PitchScene({ ...o, onFrame: place, onGoal: () => setGoal(true) })}
+        onReady={(e) => { eng.current = e; }} onFail={onFail}>
+        <button className="tap-layer" onClick={() => void tap()} aria-label="Ketuk pemain bola untuk lanjut" disabled={taps >= 2} />
+      </Canvas3D>
+      {taps < 2 && (
+        <div ref={bubble} className="bubble b3d" role="status" aria-live="polite">
+          <b>{LINES[taps]}{taps === 0 && student ? `, ${student.code}!` : ''}</b>
+        </div>
+      )}
+      {taps < 2 && <p className="guide-tip g3d">Ketuk pemain bola untuk lanjut ({taps + 1}/2)</p>}
+      {goal && <p className="goal-text g3d">Gol! Ayo belajar!</p>}
+      <div className="whiteout out" aria-hidden="true" />
+    </main>
   );
 }

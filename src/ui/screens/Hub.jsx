@@ -6,6 +6,7 @@ import { mastery } from '../../domain/learning/hints';
 import { ABILITY_STEPS, abilityChecks } from '../../domain/learning/ability';
 import { TopBar } from '../components/common';
 import { Logo } from '../components/Logo';
+import { HubDoodles, TileIcon } from '../components/HubDoodles';
 import { Goal } from './Intro';
 
 /* ───────────── Beranda inti (muncul "di gawang" setelah tendangan) ───────────── */
@@ -21,16 +22,16 @@ export function HubScreen() {
   if (!student) return null;
 
   const tiles = [
-    { k: 'pre', t: 'Pretest', s: pre ? 'Sudah dikerjakan' : 'Tes awal bersama guru', go: () => push({ name: 'test', mode: 'pretest' }), c: 't-test' },
-    { k: 'post', t: 'Posttest', s: post ? 'Sudah dikerjakan' : 'Tes akhir bersama guru', go: () => push({ name: 'test', mode: 'posttest' }), c: 't-test' },
-    { k: 'materi', t: 'Materi Peluang', s: `${student.lessonsDone.length}/${LESSONS.length} unit selesai`, go: () => push({ name: 'lessons' }), c: 't-lesson' },
-    { k: 'lab', t: 'Uji Coba', s: 'Lempar koin, dadu, ambil kartu', go: () => push({ name: 'lab' }), c: 't-lab' },
-    { k: 'quest', t: 'Latihan Soal', s: 'Mudah · Sedang · Sulit', go: () => push({ name: 'quest' }), c: 't-practice' },
-    { k: 'literasi', t: 'Latihan Literasi', s: 'Soal cerita per langkah', go: () => push({ name: 'practice' }), c: 't-practice' },
-    { k: 'ability', t: 'Kemampuan Saya', s: 'Lihat tingkatmu 1–10', go: () => push({ name: 'ability' }), c: 't-progress' },
-    { k: 'progress', t: 'Progres Saya', s: 'Kemandirian per indikator', go: () => push({ name: 'progress' }), c: 't-progress' },
-    { k: 'rest', t: 'Istirahat', s: 'Capek? Rehat sebentar', go: () => push({ name: 'rest' }), c: 't-rest' },
-    { k: 'kamus', t: 'Kamus Benda', s: 'Koin, dadu, kartu remi', go: () => push({ name: 'glossary' }), c: 't-lesson' }
+    { k: 'pre', t: 'Pretest', s: pre ? 'Sudah dikerjakan' : 'Tes awal bersama guru', go: () => push({ name: 'test', mode: 'pretest' }), c: 't-test', ic: 'test' },
+    { k: 'post', t: 'Posttest', s: post ? 'Sudah dikerjakan' : 'Tes akhir bersama guru', go: () => push({ name: 'test', mode: 'posttest' }), c: 't-test', ic: 'testok' },
+    { k: 'materi', t: 'Materi Peluang', s: `${student.lessonsDone.length}/${LESSONS.length} unit selesai`, go: () => push({ name: 'lessons' }), c: 't-lesson', ic: 'book' },
+    { k: 'lab', t: 'Uji Coba', s: 'Lempar koin, dadu, ambil kartu', go: () => push({ name: 'lab' }), c: 't-lab', ic: 'dice' },
+    { k: 'quest', t: 'Latihan Soal', s: 'Mudah · Sedang · Sulit', go: () => push({ name: 'quest' }), c: 't-practice', ic: 'target' },
+    { k: 'literasi', t: 'Latihan Literasi', s: 'Soal cerita per langkah', go: () => push({ name: 'practice' }), c: 't-practice', ic: 'chat' },
+    { k: 'ability', t: 'Kemampuan Saya', s: 'Lihat tingkatmu 1–10', go: () => push({ name: 'ability' }), c: 't-progress', ic: 'ladder' },
+    { k: 'progress', t: 'Progres Saya', s: 'Kemandirian per indikator', go: () => push({ name: 'progress' }), c: 't-progress', ic: 'chart' },
+    { k: 'rest', t: 'Istirahat', s: 'Capek? Rehat sebentar', go: () => push({ name: 'rest' }), c: 't-rest', ic: 'cup' },
+    { k: 'kamus', t: 'Kamus Benda', s: 'Koin, dadu, kartu remi', go: () => push({ name: 'glossary' }), c: 't-lesson', ic: 'search' }
   ];
 
   return (
@@ -43,6 +44,8 @@ export function HubScreen() {
         </button>
       </header>
 
+      <HubDoodles code={student.code} />
+
       {student.diagnosticScore === null && (
         <button className="card next-card" onClick={() => push({ name: 'diagnostic' })}>
           <span className="label">Mulai dari sini</span>
@@ -52,8 +55,8 @@ export function HubScreen() {
       )}
 
       <div className="menu-grid">
-        {tiles.map(x => (
-          <button key={x.k} className={'menu-tile ' + x.c} onClick={x.go}><b>{x.t}</b><span>{x.s}</span></button>
+        {tiles.map((x, i) => (
+          <button key={x.k} className={'menu-tile ' + x.c} onClick={x.go}><TileIcon name={x.ic} i={i} /><b>{x.t}</b><span>{x.s}</span></button>
         ))}
       </div>
 
