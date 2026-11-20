@@ -25,7 +25,7 @@ export function IntroScreen() {
   return can3d && !failed ? <Intro3D onFail={() => setFailed(true)} /> : <IntroFlat />;
 }
 
-function GuideFlat() {
+export function GuideScreen() {
   const can3d = use3D();
   const [failed, setFailed] = useState(false);
   return can3d && !failed ? <Guide3D onFail={() => setFailed(true)} /> : <GuideFlat />;
@@ -194,7 +194,7 @@ function Wheel({ sectors, spinning }) {
 
 /* ③ Pemain bola pemandu → tendangan ke gawang → Beranda inti */
 const LINES = ['Hallo, selamat datang', 'Ayo kita mulai belajarnya!'];
-export function GuideScreen() {
+function GuideFlat() {
   const { student, reset, motion } = useApp();
   const [taps, setTaps] = useState(0);       // 0: sapaan, 1: ajakan, 2: menendang
   const [goal, setGoal] = useState(false);
